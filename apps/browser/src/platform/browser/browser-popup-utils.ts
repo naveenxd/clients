@@ -41,6 +41,15 @@ export default class BrowserPopupUtils {
   }
 
   /**
+   * Identifies if the popup is rendered inside an in-page panel.
+   *
+   * @param win - The passed window object.
+   */
+  static inPanel(win: Window): boolean {
+    return BrowserPopupUtils.urlContainsSearchParams(win, "uilocation", "panel");
+  }
+
+  /**
    * Identifies if the popup is within the Chrome Side Panel.
    *
    * @param win - The passed window object.
@@ -54,6 +63,12 @@ export default class BrowserPopupUtils {
    * (it is possible in Chrome to open the extension in a tab)
    */
   static async isInTab() {
+    // In-page panels are extension iframes embedded into a web page and are not
+    // granted access to the tabs API. They are also never hosted in a browser tab.
+    if (typeof chrome.tabs === "undefined") {
+      return false;
+    }
+
     const tabId = (await BrowserApi.getCurrentTab())?.id;
 
     if (tabId === undefined || tabId === null) {

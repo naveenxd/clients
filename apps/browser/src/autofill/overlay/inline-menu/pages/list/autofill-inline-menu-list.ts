@@ -28,6 +28,7 @@ import {
   globeIcon,
   idCardIcon,
   lockIcon,
+  logoIcon,
   passkeyIcon,
   plusIcon,
   viewCipherIcon,
@@ -78,6 +79,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private theme: Theme = ThemeTypes.Light;
   private litHost?: HTMLDivElement;
   private litCipherListScrollElement?: HTMLElement;
+  private panelMode = false;
+  /** Persistent header for the docked panel; lives outside the resettable list container. */
+  private panelHeader?: HTMLDivElement;
   private readonly showCiphersPerPage = 6;
   private readonly headingBorderClass = "inline-menu-list-heading--bordered";
   private readonly inlineMenuListWindowMessageHandlers: AutofillInlineMenuListWindowMessageHandlers =
@@ -119,6 +123,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       showSaveLoginMenu,
       showAnimations = true,
       useLitComponents = false,
+      panelMode = false,
     } = message;
     const linkElement = await this.initAutofillInlineMenuPage(
       "list",
@@ -131,6 +136,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.inlineMenuFillType = inlineMenuFillType;
     this.showPasskeysLabels = showPasskeysLabels;
     this.useLitComponents = useLitComponents;
+    this.panelMode = panelMode;
     if (useLitComponents) {
       this.theme = resolveTheme(theme);
     }
@@ -145,7 +151,15 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
     this.resizeObserver.observe(this.inlineMenuListContainer);
 
-    this.shadowDom.append(linkElement, this.inlineMenuListContainer);
+    if (this.panelMode) {
+      // Kept outside of the list container because the container is cleared on
+      // every list update. The header must survive those updates.
+      this.panelHeader = this.buildPanelHeader();
+      this.shadowDom.append(linkElement, this.panelHeader, this.inlineMenuListContainer);
+    } else {
+      this.panelHeader = undefined;
+      this.shadowDom.append(linkElement, this.inlineMenuListContainer);
+    }
     this.isInitialized = true;
 
     if (authStatus !== AuthenticationStatus.Unlocked) {
@@ -168,6 +182,47 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       showInlineMenuAccountCreation,
     });
   }
+
+  /**
+   * Builds the compact Bitwarden header shown above the list when the menu is
+   * docked in the top-right panel.
+   */
+  private buildPanelHeader(): HTMLDivElement {
+    const header = globalThis.document.createElement("div");
+    header.classList.add("inline-menu-panel-header");
+
+    const brand = globalThis.document.createElement("div");
+    brand.classList.add("inline-menu-panel-header-brand");
+
+    const logo = buildSvgDomElement(logoIcon);
+    logo.classList.add("inline-menu-panel-header-logo");
+    brand.appendChild(logo);
+
+    const title = globalThis.document.createElement("span");
+    title.classList.add("inline-menu-panel-header-title");
+    title.textContent = this.getTranslation("appName") || "Bitwarden";
+    brand.appendChild(title);
+
+    const closeButton = globalThis.document.createElement("button");
+    closeButton.type = "button";
+    closeButton.classList.add("inline-menu-panel-header-close");
+    closeButton.textContent = "\u00d7";
+    const closeLabel = this.getTranslation("close") || "Close";
+    closeButton.setAttribute("aria-label", closeLabel);
+    closeButton.title = closeLabel;
+    closeButton.addEventListener(EVENTS.CLICK, this.handlePanelCloseClick);
+
+    header.append(brand, closeButton);
+
+    return header;
+  }
+
+  private handlePanelCloseClick = () => {
+    this.postMessageToParent({
+      command: "closeAutofillInlineMenu",
+      forceCloseInlineMenu: true,
+    });
+  };
 
   /**
    * Builds the locked inline menu, which is displayed when the user is not authenticated.
@@ -1924,9 +1979,13 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
       const { height } = entry.contentRect;
       this.toggleScrollClass(height);
+
+      // The panel header sits outside the observed list container, so add its
+      // height to the reported iframe height or the header would be clipped.
+      const panelHeaderHeight = this.panelHeader?.getBoundingClientRect().height ?? 0;
       this.postMessageToParent({
         command: "updateAutofillInlineMenuListHeight",
-        styles: { height: `${height}px` },
+        styles: { height: `${height + panelHeaderHeight}px` },
       });
       break;
     }

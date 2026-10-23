@@ -5,6 +5,8 @@
     slot="header"
     [pageTitle]="headerText"
     [backAction]="handleBackButton"
+    [panelMode]="inPanel"
+    (panelClose)="handleBackButton()"
     showBackButton
   >
     @if (config?.originalCipher?.archivedDate) {
@@ -12,7 +14,9 @@
         <button type="button" bit-chip-action [label]="'archived' | i18n"></button>
       </ng-container>
     }
-    <app-pop-out slot="end" />
+    @if (!inPanel) {
+      <app-pop-out slot="end" />
+    }
   </popup-header>
 
   @if (!loading) {

@@ -45,10 +45,12 @@ import {
 } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { ZonedMessageListenerService } from "../../../platform/browser/zoned-message-listener.service";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { VaultPopoutType } from "../../../vault/popup/utils/vault-popout-window";
+import { Fido2PanelWindowCommand } from "../../fido2/enums/fido2-panel-command.enum";
 import {
   BrowserFido2Message,
   BrowserFido2UserInterfaceSession,
@@ -113,6 +115,7 @@ export class Fido2Component implements OnInit, OnDestroy {
   protected sessionId: string | undefined = undefined;
   protected showNewPasskeyButton: boolean = false;
   protected url: string | undefined = undefined;
+  protected readonly inPanel = BrowserPopupUtils.inPanel(window);
 
   constructor(
     private router: Router,
@@ -360,16 +363,25 @@ export class Fido2Component implements OnInit, OnDestroy {
       this.url != null
     ) {
       await this.router.navigate(["/add-cipher"], {
+        // Keep the panel markers (`uilocation`, `panelNonce`) in the url: the add-cipher
+        // route has to render with the panel chrome and resolve the FIDO2 session again.
+        queryParamsHandling: "merge",
         queryParams: {
           type: CipherType.Login.toString(),
           name: data.credentialName || data.rpId,
           uri: this.url,
-          uilocation: "popout",
           username: data.userName,
           senderTabId: this.senderTabId,
           sessionId: this.sessionId,
           userVerification: data.userVerification,
-          singleActionPopout: `${VaultPopoutType.fido2Popout}_${this.sessionId}`,
+          // The panel hosts the add-cipher route in place, so it must not be
+          // treated as a standalone popout or single-action window.
+          ...(this.inPanel
+            ? {}
+            : {
+                uilocation: "popout",
+                singleActionPopout: `${VaultPopoutType.fido2Popout}_${this.sessionId}`,
+              }),
         },
       });
     }
@@ -428,6 +440,12 @@ export class Fido2Component implements OnInit, OnDestroy {
 
   abort(fallback: boolean) {
     this.unload(fallback);
+
+    if (this.inPanel) {
+      globalThis.parent.postMessage({ command: Fido2PanelWindowCommand.Close }, "*");
+      return;
+    }
+
     window.close();
   }
 

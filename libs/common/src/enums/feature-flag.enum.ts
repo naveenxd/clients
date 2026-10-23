@@ -32,6 +32,7 @@ export enum FeatureFlag {
   FillAssistTargetingRules = "fill-assist-targeting-rules",
   DefaultPasswordManagerPrompt = "pm-39071-default-password-manager-prompt",
   LitInlineMenuComponents = "lit-inline-menu-components",
+  FirefoxTopRightPanels = "firefox-top-right-panels",
   // Note: This flag gates security risks and should not be turned on without
   // changes to the underlying experience
   EnableBasicAuthResponse = "enable-basic-auth-response",
@@ -114,8 +115,9 @@ export enum FeatureFlag {
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
 
-// Helper to ensure the value is treated as a boolean.
+// Helpers to ensure the value is treated as a boolean.
 const FALSE = false as boolean;
+const TRUE = true as boolean;
 
 /**
  * Default value for feature flags.
@@ -135,6 +137,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
   [FeatureFlag.DefaultPasswordManagerPrompt]: FALSE,
   [FeatureFlag.LitInlineMenuComponents]: FALSE,
+  [FeatureFlag.FirefoxTopRightPanels]: TRUE,
   [FeatureFlag.EnableBasicAuthResponse]: FALSE,
 
   /* Desktop Native */
@@ -219,7 +222,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PamAccessConnector]: FALSE,
 
   /* VFO */
-  [FeatureFlag.VFO1Foundation]: FALSE,
+  [FeatureFlag.VFO1Foundation]: TRUE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

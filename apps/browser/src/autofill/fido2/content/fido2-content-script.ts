@@ -6,6 +6,7 @@ import {
 import { currentlyInSandboxedIframe, sendExtensionMessage } from "../../../autofill/utils";
 import { Fido2PortName } from "../enums/fido2-port-name.enum";
 
+import { setupFido2Panel } from "./fido2-panel";
 import { reportIframeAttributesWhenReady } from "./iframe-allow-reporter";
 import {
   InsecureAssertCredentialParams,
@@ -35,6 +36,9 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
   messenger.handler = handleFido2Message;
   const port = chrome.runtime.connect({ name: Fido2PortName.InjectedScript });
   port.onDisconnect.addListener(handlePortOnDisconnect);
+
+  // Hosts passkey UI in an in-page panel at the top-right of the browser window.
+  setupFido2Panel(globalContext.window);
 
   // Report this frame's iframe `allow=` attributes to the background so the
   // Permissions Policy gate can consult them when evaluating cross-origin

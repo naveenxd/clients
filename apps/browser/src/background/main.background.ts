@@ -404,6 +404,7 @@ import BrowserMemoryStorageService from "../platform/services/browser-memory-sto
 import { BrowserScriptInjectorService } from "../platform/services/browser-script-injector.service";
 import I18nService from "../platform/services/i18n.service";
 import { LocalBackedSessionStorageService } from "../platform/services/local-backed-session-storage.service";
+import { PanelFrameTrustService } from "../platform/services/panel-frame-trust.service";
 import { BackgroundPlatformUtilsService } from "../platform/services/platform-utils/background-platform-utils.service";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 import { PopupRouterCacheBackgroundService } from "../platform/services/popup-router-cache-background.service";
@@ -505,6 +506,7 @@ export default class MainBackground {
   sendDecryptionService: SendDecryptionService;
   userVerificationApiService: UserVerificationApiServiceAbstraction;
   fido2UserInterfaceService: Fido2UserInterfaceServiceAbstraction<BrowserFido2ParentWindowReference>;
+  panelFrameTrustService: PanelFrameTrustService;
   fido2AuthenticatorService: Fido2AuthenticatorServiceAbstraction<BrowserFido2ParentWindowReference>;
   fido2ActiveRequestManager: Fido2ActiveRequestManagerAbstraction;
   fido2ClientService: Fido2ClientServiceAbstraction<BrowserFido2ParentWindowReference>;
@@ -1514,7 +1516,12 @@ export default class MainBackground {
       this.billingAccountProfileStateService,
     );
 
-    this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
+    this.panelFrameTrustService = new PanelFrameTrustService(this.logService);
+    this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(
+      this.authService,
+      this.configService,
+      this.panelFrameTrustService,
+    );
     this.fido2AuthenticatorService = new Fido2AuthenticatorService(
       this.cipherService,
       this.fido2UserInterfaceService,

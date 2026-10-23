@@ -222,8 +222,13 @@ export class AddEditComponent implements OnInit, OnDestroy {
     switchMap((userId) => this.archiveService.userCanArchive$(userId)),
   );
 
+  protected readonly inPanel = BrowserPopupUtils.inPanel(window);
+
   private get inFido2PopoutWindow() {
-    return BrowserPopupUtils.inPopout(window) && this.fido2PopoutSessionData.isFido2Session;
+    return (
+      (BrowserPopupUtils.inPopout(window) || this.inPanel) &&
+      this.fido2PopoutSessionData.isFido2Session
+    );
   }
 
   private get inSingleActionPopout() {
@@ -344,7 +349,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   };
 
   async onCipherSaved(cipher: CipherView) {
-    if (BrowserPopupUtils.inPopout(window)) {
+    if (BrowserPopupUtils.inPopout(window) || this.inPanel) {
       this.popupCloseWarningService.disable();
     }
 

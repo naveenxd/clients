@@ -18,6 +18,11 @@ export class BrowserApi {
   static isWebExtensionsApi: boolean = typeof browser !== "undefined";
   static isSafariApi: boolean = isBrowserSafariApi();
   static isChromeApi: boolean = !BrowserApi.isSafariApi && typeof chrome !== "undefined";
+  /**
+   * Injected by the background so that in-page panels Bitwarden opened itself are
+   * treated as internal senders. See `PanelFrameTrustService`.
+   */
+  static panelFrameTrustChecker: ((sender: chrome.runtime.MessageSender) => boolean) | undefined;
   static isFirefoxOnAndroid: boolean =
     navigator.userAgent.indexOf("Firefox/") !== -1 && navigator.userAgent.indexOf("Android") !== -1;
   static isFirefox: boolean = navigator.userAgent.indexOf("Firefox/") !== -1;
@@ -100,6 +105,11 @@ export class BrowserApi {
 
     // frameId is absent for popups, so use an 'in' check rather than direct comparison.
     if ("frameId" in sender && sender.frameId !== 0) {
+      if (BrowserApi.panelFrameTrustChecker?.(sender) === true) {
+        logger?.info("[BrowserApi] Message sender is a trusted in-page panel");
+        return true;
+      }
+
       logger?.warning("[BrowserApi] Message sender is not from the top-level frame");
       return false;
     }
@@ -466,7 +476,9 @@ export class BrowserApi {
    * a result, it will return null when called from that context.
    */
   static getBackgroundPage(): any {
-    if (typeof chrome.extension.getBackgroundPage === "undefined") {
+    // In-page panels are extension iframes embedded into web pages and do not have
+    // access to `chrome.extension`.
+    if (typeof chrome.extension?.getBackgroundPage === "undefined") {
       return null;
     }
 

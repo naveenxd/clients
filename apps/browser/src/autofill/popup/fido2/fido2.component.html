@@ -6,6 +6,8 @@
         (passkeyAction === PasskeyActions.Register ? 'savePasskey' : 'logInWithPasskeyQuestion')
           | i18n
       }}"
+      [panelMode]="inPanel"
+      (panelClose)="abort(false)"
     >
       @if (showNewPasskeyButton) {
         <button

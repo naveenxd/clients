@@ -3222,6 +3222,59 @@ describe("OverlayBackground", () => {
       });
     });
 
+    describe("fido2PanelOpened", () => {
+      const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+
+      it("marks the passkey panel as owning the top right corner of the sender tab", () => {
+        sendMockExtensionMessage({ command: "fido2PanelOpened" }, sender);
+
+        expect(overlayBackground["isPasskeyPanelActive"](1)).toBe(true);
+      });
+
+      it("closes the inline menu when the focused field belongs to the sender tab", () => {
+        overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({ tabId: 1 });
+
+        sendMockExtensionMessage({ command: "fido2PanelOpened" }, sender);
+
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+          sender.tab,
+          { command: "closeAutofillInlineMenu", overlayElement: undefined },
+          { frameId: 0 },
+        );
+      });
+
+      it("does not open the inline menu while the passkey panel is active", async () => {
+        const focusedFieldData = createFocusedFieldDataMock({ tabId: 1, frameId: 2 });
+        const focusedFieldSender = mock<chrome.runtime.MessageSender>({
+          tab: { id: 1 },
+          frameId: 2,
+        });
+        overlayBackground["focusedFieldData"] = focusedFieldData;
+
+        await overlayBackground["openInlineMenu"](focusedFieldSender, true);
+        expect(tabsSendMessageSpy).toHaveBeenCalled();
+
+        sendMockExtensionMessage({ command: "fido2PanelOpened" }, sender);
+        tabsSendMessageSpy.mockClear();
+
+        await overlayBackground["openInlineMenu"](focusedFieldSender, true);
+
+        expect(tabsSendMessageSpy).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("fido2PanelClosed", () => {
+      const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+
+      it("returns the top right corner of the sender tab to the autofill overlay", () => {
+        sendMockExtensionMessage({ command: "fido2PanelOpened" }, sender);
+
+        sendMockExtensionMessage({ command: "fido2PanelClosed" }, sender);
+
+        expect(overlayBackground["isPasskeyPanelActive"](1)).toBe(false);
+      });
+    });
+
     describe("routeTargetedFieldsToFrame", () => {
       const tab = mock<chrome.tabs.Tab>({ id: 10 });
       const sender = mock<chrome.runtime.MessageSender>({ tab });
@@ -3584,6 +3637,72 @@ describe("OverlayBackground", () => {
           left: "2204px",
         });
       });
+
+      it("docks the menu list in the top right corner of the page when the Firefox panel treatment is enabled", () => {
+        const subframe = {
+          top: 0,
+          left: 0,
+          url: "",
+          frameId: 0,
+        };
+
+        overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
+          focusedFieldRects: {
+            width: 49.328125,
+            height: 64,
+            top: 302.171875,
+            left: 1270.8125,
+          },
+        });
+        overlayBackground["firefoxTopRightPanels"] = true;
+        const originalIsFirefox = BrowserApi.isFirefox;
+        const originalIsFirefoxOnAndroid = BrowserApi.isFirefoxOnAndroid;
+        BrowserApi.isFirefox = true;
+        BrowserApi.isFirefoxOnAndroid = false;
+
+        try {
+          const menuPosition = overlayBackground["getInlineMenuListPosition"](subframe);
+
+          expect(menuPosition).toEqual({
+            top: "12px",
+            right: "12px",
+            bottom: "auto",
+            left: "auto",
+            width: "min(400px, calc(100vw - 24px))",
+            maxHeight: "calc(100vh - 24px)",
+          });
+        } finally {
+          BrowserApi.isFirefox = originalIsFirefox;
+          BrowserApi.isFirefoxOnAndroid = originalIsFirefoxOnAndroid;
+        }
+      });
+
+      it("anchors the menu list to the focused field when the Firefox panel treatment is disabled", () => {
+        const subframe = {
+          top: 0,
+          left: 0,
+          url: "",
+          frameId: 0,
+        };
+
+        overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
+          focusedFieldRects: {
+            width: 49.328125,
+            height: 64,
+            top: 302.171875,
+            left: 1270.8125,
+          },
+        });
+        overlayBackground["firefoxTopRightPanels"] = false;
+
+        const menuPosition = overlayBackground["getInlineMenuListPosition"](subframe);
+
+        expect(menuPosition).toEqual({
+          width: "49px",
+          top: "366px",
+          left: "1271px",
+        });
+      });
     });
 
     describe("triggerDelayedAutofillInlineMenuClosure message handler", () => {
@@ -3749,6 +3868,22 @@ describe("OverlayBackground", () => {
         await flushPromises();
 
         expect(openUnlockPopoutSpy).toHaveBeenCalled();
+      });
+    });
+
+    describe("closeAutofillInlineMenu message handler", () => {
+      it("closes the inline menu in the sender tab", async () => {
+        sendPortMessage(listMessageConnectorSpy, {
+          command: "closeAutofillInlineMenu",
+          portKey,
+        });
+        await flushPromises();
+
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+          sender.tab,
+          { command: "closeAutofillInlineMenu", overlayElement: undefined },
+          { frameId: 0 },
+        );
       });
     });
 

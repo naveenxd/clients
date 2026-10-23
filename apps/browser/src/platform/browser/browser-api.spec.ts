@@ -162,6 +162,10 @@ describe("BrowserApi", () => {
       jest.spyOn(BrowserApi, "getRuntimeURL").mockReturnValue(`${EXTENSION_ORIGIN}/`);
     });
 
+    afterEach(() => {
+      BrowserApi.panelFrameTrustChecker = undefined;
+    });
+
     it("returns false when sender is undefined", () => {
       const result = BrowserApi.senderIsInternal(undefined);
 
@@ -242,6 +246,35 @@ describe("BrowserApi", () => {
       BrowserApi.senderIsInternal({ origin: EXTENSION_ORIGIN, frameId: 5 }, logger);
 
       expect(logger.warning).toHaveBeenCalledWith(expect.stringContaining("top-level frame"));
+    });
+
+    it("returns true when a non-top-level frame is a trusted in-page panel", () => {
+      BrowserApi.panelFrameTrustChecker = jest.fn().mockReturnValue(true);
+
+      const result = BrowserApi.senderIsInternal({ origin: EXTENSION_ORIGIN, frameId: 5 });
+
+      expect(BrowserApi.panelFrameTrustChecker).toHaveBeenCalledWith({
+        origin: EXTENSION_ORIGIN,
+        frameId: 5,
+      });
+      expect(result).toBe(true);
+    });
+
+    it("returns false when a non-top-level frame is not a trusted in-page panel", () => {
+      BrowserApi.panelFrameTrustChecker = jest.fn().mockReturnValue(false);
+
+      const result = BrowserApi.senderIsInternal({ origin: EXTENSION_ORIGIN, frameId: 5 });
+
+      expect(result).toBe(false);
+    });
+
+    it("does not consult the panel trust checker for top-level frames", () => {
+      BrowserApi.panelFrameTrustChecker = jest.fn().mockReturnValue(false);
+
+      const result = BrowserApi.senderIsInternal({ origin: EXTENSION_ORIGIN, frameId: 0 });
+
+      expect(BrowserApi.panelFrameTrustChecker).not.toHaveBeenCalled();
+      expect(result).toBe(true);
     });
 
     it("calls logger.info when sender is confirmed internal", () => {

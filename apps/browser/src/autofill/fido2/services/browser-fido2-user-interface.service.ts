@@ -16,6 +16,8 @@ import {
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserRequestedFallbackAbortReason } from "@bitwarden/common/platform/abstractions/fido2/fido2-client.service.abstraction";
 import {
   Fido2UserInterfaceService as Fido2UserInterfaceServiceAbstraction,
@@ -27,11 +29,14 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import { fromChromeEvent } from "../../../platform/browser/from-chrome-event";
+import { PanelFrameTrustService } from "../../../platform/services/panel-frame-trust.service";
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
 import { closeFido2Popout, openFido2Popout } from "../../../vault/popup/utils/vault-popout-window";
+import { Fido2PanelCommand } from "../enums/fido2-panel-command.enum";
 
 const BrowserFido2MessageName = "BrowserFido2UserInterfaceServiceMessage";
+const PanelConnectionTimeout = 5000;
 
 export const BrowserFido2MessageTypes = {
   ConnectResponse: "ConnectResponse",
@@ -119,7 +124,11 @@ export type BrowserFido2ParentWindowReference = chrome.tabs.Tab;
  * The user interface is implemented as a popout and the service uses the browser's messaging API to communicate with it.
  */
 export class BrowserFido2UserInterfaceService implements Fido2UserInterfaceServiceAbstraction<BrowserFido2ParentWindowReference> {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private configService: ConfigService,
+    private panelFrameTrustService: PanelFrameTrustService,
+  ) {}
 
   async newSession(
     fallbackSupported: boolean,
@@ -131,7 +140,21 @@ export class BrowserFido2UserInterfaceService implements Fido2UserInterfaceServi
       fallbackSupported,
       tab,
       abortController,
+      await this.useInPagePanel(),
+      this.panelFrameTrustService,
     );
+  }
+
+  /**
+   * The in-page passkey panel is a Firefox-only treatment. Other browsers keep the
+   * existing popout so this feature cannot affect their FIDO2 flows.
+   */
+  private async useInPagePanel(): Promise<boolean> {
+    if (!BrowserApi.isFirefox || BrowserApi.isFirefoxOnAndroid) {
+      return false;
+    }
+
+    return await this.configService.getFeatureFlag(FeatureFlag.FirefoxTopRightPanels);
   }
 }
 
@@ -141,12 +164,17 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     fallbackSupported: boolean,
     tab: chrome.tabs.Tab,
     abortController?: AbortController,
+    panelSupported = false,
+    panelFrameTrustService?: PanelFrameTrustService,
   ): Promise<BrowserFido2UserInterfaceSession> {
     return new BrowserFido2UserInterfaceSession(
       authService,
       fallbackSupported,
       tab,
       abortController,
+      undefined,
+      panelSupported,
+      panelFrameTrustService,
     );
   }
 
@@ -172,6 +200,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   }
 
   private closed = false;
+  private panelIsOpen = false;
   private messages$ = (BrowserApi.messageListener$() as Observable<BrowserFido2Message>).pipe(
     filter((msg) => msg.sessionId === this.sessionId),
   );
@@ -185,6 +214,8 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     private readonly tab: chrome.tabs.Tab,
     readonly abortController = new AbortController(),
     readonly sessionId = Utils.newGuid(),
+    private readonly panelSupported = false,
+    private readonly panelFrameTrustService?: PanelFrameTrustService,
   ) {
     this.messages$
       .pipe(
@@ -313,6 +344,11 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   }
 
   async close() {
+    if (this.panelIsOpen) {
+      this.panelIsOpen = false;
+      await this.closePanel();
+    }
+    this.panelFrameTrustService?.revokeSession(this.sessionId);
     await closeFido2Popout(this.sessionId);
     this.closed = true;
     this.destroy$.next();
@@ -327,6 +363,25 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     if (!this.connected$.value) {
       await this.connect();
     }
+
+    this.sendToUserInterface(msg);
+  }
+
+  /**
+   * Delivers a message to the user interface that hosts the session. Runtime broadcasts
+   * do not reach extension frames embedded into web pages, so an open panel is addressed
+   * through its frame directly.
+   */
+  private sendToUserInterface(msg: BrowserFido2Message): void {
+    const panelFrame = this.panelIsOpen
+      ? this.panelFrameTrustService?.getPanelFrame(this.sessionId)
+      : undefined;
+
+    if (panelFrame) {
+      void BrowserApi.tabSendMessage(this.tab, msg, { frameId: panelFrame.frameId });
+      return;
+    }
+
     BrowserFido2UserInterfaceSession.sendMessage(msg);
   }
 
@@ -363,8 +418,21 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       ),
     );
 
-    // Defensive measure in case an existing notification appeared before the passkey popout
+    // Defensive measure in case an existing notification appeared before the passkey panel
     await BrowserApi.tabSendMessageData(this.tab, "closeNotificationBar");
+
+    if (this.panelSupported) {
+      const panelOpened = await this.openPanel();
+      if (panelOpened) {
+        this.panelIsOpen = true;
+        if (await this.waitForPanelConnection(connectPromise)) {
+          return;
+        }
+
+        this.panelIsOpen = false;
+        await this.closePanel();
+      }
+    }
 
     const popoutId = await openFido2Popout(this.tab, {
       sessionId: this.sessionId,
@@ -384,5 +452,77 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       });
 
     await connectPromise;
+  }
+
+  /**
+   * Asks the content script to host the passkey UI in the in-page panel. Returns
+   * false when the page has no content script, in which case the caller falls
+   * back to the existing popout window.
+   */
+  private async openPanel(): Promise<boolean> {
+    if (this.tab.id == null) {
+      // Without a tab id the panel cannot be bound to this session, so it cannot
+      // be trusted with background state. Use the popout instead.
+      return false;
+    }
+
+    try {
+      const response = await BrowserApi.tabSendMessage<
+        Record<string, unknown>,
+        { opened?: boolean }
+      >(
+        this.tab,
+        {
+          command: Fido2PanelCommand.Open,
+          sessionId: this.sessionId,
+          fallbackSupported: this.fallbackSupported,
+          senderTabId: this.tab.id,
+          senderUrl: this.tab.url,
+          panelNonce: this.panelFrameTrustService?.createNonce(this.tab.id, this.sessionId),
+        },
+        { frameId: 0 },
+        true,
+      );
+
+      return response?.opened === true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Waits for the panel iframe to connect back to the background. If it does not
+   * connect in time the panel is treated as failed and the popout fallback runs.
+   */
+  private async waitForPanelConnection(connectPromise: Promise<unknown>): Promise<boolean> {
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    const timeoutPromise = new Promise<boolean>((resolve) => {
+      timeoutId = setTimeout(() => resolve(false), PanelConnectionTimeout);
+    });
+
+    try {
+      return await Promise.race([connectPromise.then(() => true), timeoutPromise]);
+    } finally {
+      if (timeoutId !== undefined) {
+        clearTimeout(timeoutId);
+      }
+    }
+  }
+
+  private async closePanel(): Promise<void> {
+    if (!this.panelSupported) {
+      return;
+    }
+
+    await BrowserApi.tabSendMessage(
+      this.tab,
+      {
+        command: Fido2PanelCommand.Close,
+        sessionId: this.sessionId,
+      },
+      { frameId: 0 },
+    ).catch(() => {
+      // The tab may have navigated or closed; there is nothing left to clean up.
+    });
   }
 }

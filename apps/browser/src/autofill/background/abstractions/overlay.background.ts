@@ -277,6 +277,8 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   bgSaveCipher: () => void;
   updateOverlayCiphers: () => void;
   fido2AbortRequest: ({ sender }: BackgroundSenderParam) => void;
+  fido2PanelOpened: ({ sender }: BackgroundSenderParam) => void;
+  fido2PanelClosed: ({ sender }: BackgroundSenderParam) => void;
   routeTargetedFieldsToFrame: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
 };
 
@@ -314,6 +316,7 @@ export type InlineMenuListPortMessageHandlers = {
   refreshGeneratedPassword: () => Promise<void>;
   fillGeneratedPassword: ({ port }: PortConnectionParam) => Promise<void>;
   refreshOverlayCiphers: () => Promise<void>;
+  closeAutofillInlineMenu: ({ port }: PortConnectionParam) => void;
 };
 
 export interface OverlayBackground {

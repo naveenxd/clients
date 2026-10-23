@@ -13,6 +13,7 @@ import {
   Subject,
   Subscription,
   switchMap,
+  take,
   throttleTime,
   timeout,
 } from "rxjs";
@@ -85,6 +86,7 @@ import {
   InlineMenuFillTypes,
   MAX_SUB_FRAME_DEPTH,
 } from "../enums/autofill-overlay.enum";
+import { Fido2PanelRuntimeMessage } from "../fido2/enums/fido2-panel-command.enum";
 import AutofillField from "../models/autofill-field";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
 import { InlineMenuFieldQualificationService } from "../services/abstractions/inline-menu-field-qualifications.service";
@@ -184,6 +186,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private isInlineMenuListVisible: boolean = false;
   private showPasskeysLabelsWithinInlineMenu: boolean = false;
   private passkeyAuthTabId: number | null = null;
+  private firefoxTopRightPanels = false;
+  private readonly passkeyPanelTabs: Set<number> = new Set();
   private readonly validPortConnections: Set<string> = new Set([
     AutofillOverlayPort.Button,
     AutofillOverlayPort.ButtonMessageConnector,
@@ -242,6 +246,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     updateOverlayCiphers: () => this.updateOverlayCiphers(),
     fido2AbortRequest: ({ sender }) =>
       void this.withSenderTab(sender, (tab) => this.abortFido2ActiveRequest(tab.id)),
+    [Fido2PanelRuntimeMessage.Opened]: ({ sender }) => this.handleFido2PanelOpened(sender),
+    [Fido2PanelRuntimeMessage.Closed]: ({ sender }) => this.handleFido2PanelClosed(sender),
     routeTargetedFieldsToFrame: ({ message, sender }) =>
       void this.withSenderTab(sender, (tab) => this.routeTargetedFieldsToFrame(tab, message)),
   };
@@ -267,6 +273,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     refreshGeneratedPassword: () => this.updateGeneratedPassword(true),
     fillGeneratedPassword: ({ port }) => this.fillGeneratedPassword(port),
     refreshOverlayCiphers: () => this.updateOverlayCiphers(false),
+    closeAutofillInlineMenu: ({ port }) =>
+      this.closeInlineMenu(port.sender, { forceCloseInlineMenu: true }),
   };
 
   constructor(
@@ -294,6 +302,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private messageListener: MessageListener,
   ) {
     this.initOverlayEventObservables();
+    this.configService
+      .getFeatureFlag$(FeatureFlag.FirefoxTopRightPanels)
+      .pipe(take(1))
+      .subscribe((enabled) => (this.firefoxTopRightPanels = enabled));
   }
 
   useLitInlineMenuComponents$ = this.configService.getFeatureFlag$(
@@ -432,6 +444,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       delete this.portKeyForTab[tabId];
     }
 
+    this.passkeyPanelTabs.delete(tabId);
     this.clearGeneratedPassword$.next();
     this.focusedFieldData = null;
   }
@@ -1397,7 +1410,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private async updateInlineMenuPositionAfterRepositionEvent(
     sender: chrome.runtime.MessageSender | void,
   ) {
-    if (!sender || !this.isFieldCurrentlyFocused) {
+    if (!sender || !this.isFieldCurrentlyFocused || this.isPasskeyPanelActive(sender.tab?.id)) {
       return;
     }
 
@@ -1868,7 +1881,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       focusedTabId === null ||
       focusedTabId === undefined ||
       focusedFrameId === null ||
-      focusedFrameId === undefined
+      focusedFrameId === undefined ||
+      this.isPasskeyPanelActive(focusedTabId)
     ) {
       return;
     }
@@ -2036,6 +2050,23 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (!this.focusedFieldData) {
       return {};
     }
+
+    if (this.isFirefoxTopRightPanelsEnabled) {
+      // The list is docked below the passkey panel's corner rather than anchored
+      // to the field. Returning `right`/`left: auto` keeps the browser from
+      // needing the viewport width here.
+      this.inlineMenuPosition.list = null;
+
+      return {
+        top: "12px",
+        right: "12px",
+        bottom: "auto",
+        left: "auto",
+        width: "min(400px, calc(100vw - 24px))",
+        maxHeight: "calc(100vh - 24px)",
+      };
+    }
+
     const subFrameTopOffset = subFrameOffsets?.top ?? 0;
     const subFrameLeftOffset = subFrameOffsets?.left ?? 0;
 
@@ -2466,7 +2497,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     sender: chrome.runtime.MessageSender,
     isOpeningFullInlineMenu = false,
   ) {
-    if (!sender?.tab) {
+    if (!sender?.tab || this.isPasskeyPanelActive(sender.tab.id)) {
       return;
     }
     this.cancelInlineMenuDelayedClose$.next(true);
@@ -2691,8 +2722,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         "addNewIdentityItemAria",
         "addNewLoginItemAria",
         "addNewVaultItem",
+        "appName",
         "authenticating",
         "cardNumberEndsWith",
+        "close",
         "fillCredentialsFor",
         "fillGeneratedPassword",
         "fillVerificationCode",
@@ -3282,7 +3315,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param sender - The sender of the message
    */
   private checkShouldRepositionInlineMenu(sender: chrome.runtime.MessageSender): boolean {
-    if (!this.focusedFieldData || !this.senderTabHasFocusedField(sender)) {
+    if (
+      !this.focusedFieldData ||
+      !this.senderTabHasFocusedField(sender) ||
+      this.isPasskeyPanelActive(sender.tab?.id)
+    ) {
       return false;
     }
 
@@ -3327,6 +3364,44 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     const { tabId, frameId } = this.focusedFieldData;
     return sender.tab?.id === tabId && sender.frameId === frameId;
+  }
+
+  /**
+   * The top-right panel treatment only applies to desktop Firefox, where the
+   * native autofill menu occupies the same corner of the window.
+   */
+  private get isFirefoxTopRightPanelsEnabled(): boolean {
+    return this.firefoxTopRightPanels && BrowserApi.isFirefox && !BrowserApi.isFirefoxOnAndroid;
+  }
+
+  /**
+   * Identifies whether the passkey panel currently owns the top-right corner of
+   * the tab. The autofill overlay must yield while it does.
+   */
+  private isPasskeyPanelActive(tabId?: number): boolean {
+    return tabId != null && this.passkeyPanelTabs.has(tabId);
+  }
+
+  private handleFido2PanelOpened(sender: chrome.runtime.MessageSender) {
+    const tabId = sender.tab?.id;
+    if (tabId == null) {
+      return;
+    }
+
+    this.passkeyPanelTabs.add(tabId);
+
+    if (this.focusedFieldData?.tabId === tabId) {
+      this.closeInlineMenu(sender, { forceCloseInlineMenu: true });
+    }
+  }
+
+  private handleFido2PanelClosed(sender: chrome.runtime.MessageSender) {
+    const tabId = sender.tab?.id;
+    if (tabId == null) {
+      return;
+    }
+
+    this.passkeyPanelTabs.delete(tabId);
   }
 
   /**
@@ -3576,6 +3651,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       useLitComponents: isInlineMenuListPort
         ? await firstValueFrom(this.useLitInlineMenuComponents$)
         : undefined,
+      panelMode: isInlineMenuListPort && this.isFirefoxTopRightPanelsEnabled,
     });
     if (port.sender) {
       this.updateInlineMenuPosition(

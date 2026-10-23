@@ -2,6 +2,7 @@ import { enableProdMode, provideZoneChangeDetection } from "@angular/core";
 import { platformBrowser } from "@angular/platform-browser";
 
 import { PopupSizeService } from "../platform/popup/layout/popup-size.service";
+import { completePanelFrameHandshake } from "../platform/services/panel-frame-handshake";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 
 import { AppModule } from "./app.module";
@@ -20,8 +21,10 @@ if (process.env.ENV === "production") {
 }
 
 function init() {
-  void platformBrowser().bootstrapModule(AppModule, {
-    applicationProviders: [provideZoneChangeDetection()],
+  void completePanelFrameHandshake(window).then(() => {
+    void platformBrowser().bootstrapModule(AppModule, {
+      applicationProviders: [provideZoneChangeDetection()],
+    });
   });
 }
 

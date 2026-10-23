@@ -9,6 +9,7 @@ import {
   inject,
   input,
   linkedSignal,
+  output,
   viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
@@ -86,6 +87,16 @@ export class PopupHeaderComponent {
    */
   readonly background = input<"default" | "alt">("default");
 
+  /**
+   * Render a compact single-bar header for content hosted inside the in-page
+   * top-right panel. The bar shows the Bitwarden brand, the page title, and a
+   * close control instead of the normal app/title bars.
+   */
+  readonly panelMode = input(false, { transform: booleanAttribute });
+
+  /** Emits when the panel's close control is clicked. */
+  readonly panelClose = output<void>();
+
   /** Display the back button, which uses Location.back() to go back one page in history */
   readonly showBackButton = input(false, { transform: booleanAttribute });
 
@@ -128,7 +139,7 @@ export class PopupHeaderComponent {
     // Counted only while the bar can actually collapse, so it doesn't inflate the collapsible
     // height for the regions that can.
     effect((onCleanup) => {
-      if (!this.vfo1Enabled() || this.hideTitleBar()) {
+      if (this.panelMode() || !this.vfo1Enabled() || this.hideTitleBar()) {
         return;
       }
 
@@ -157,7 +168,7 @@ export class PopupHeaderComponent {
 
   /** The app bar sits on the nav background, which only `side-nav` is legible against. */
   protected readonly backButtonType = computed<ButtonType>(() =>
-    this.titleBarSuppressed() ? "side-nav" : "primaryGhost",
+    this.panelMode() || this.titleBarSuppressed() ? "side-nav" : "primaryGhost",
   );
 
   protected readonly titleBarHidden = computed(
@@ -201,7 +212,7 @@ export class PopupHeaderComponent {
    * reachable by the `[&_header]:` overrides the default password manager prompt relies on.
    */
   protected readonly headerClasses = computed(() => {
-    if (this.vfo1Enabled()) {
+    if (this.panelMode() || this.vfo1Enabled()) {
       return "";
     }
 

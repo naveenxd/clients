@@ -17,7 +17,7 @@
       [buttonType]="backButtonType()"
       [label]="'back' | i18n"
       [bitAction]="backAction()"
-      [size]="vfo1Enabled() ? 'small' : 'default'"
+      [size]="vfo1Enabled() || panelMode() ? 'small' : 'default'"
     ></button>
   }
 </ng-template>
@@ -28,77 +28,105 @@
   neither is a landmark on its own.
 -->
 <header [class]="headerClasses()">
-  @if (vfo1Enabled()) {
+  @if (panelMode()) {
     <div
-      data-testid="app-bar"
-      class="tw-bg-bg-nav tw-text-fg-nav tw-py-2 bit-compact:tw-py-1.5 tw-px-4 bit-compact:tw-px-3"
+      data-testid="panel-bar"
+      class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-bg-bg-nav tw-text-fg-nav tw-py-1.5 tw-px-3"
     >
-      <div
-        class="tw-max-w-screen-sm tw-mx-auto tw-flex tw-w-full tw-items-center tw-justify-between tw-gap-2"
-      >
-        <div class="tw-inline-flex tw-items-center tw-gap-2">
-          @if (titleBarSuppressed()) {
-            <ng-container *ngTemplateOutlet="backButtonSlot"></ng-container>
-          }
-          <bit-svg
-            class="tw-block tw-w-[120px] [&_path]:tw-fill-fg-nav"
-            [content]="logo"
-            [ariaLabel]="'appLogoLabel' | i18n"
-          ></bit-svg>
-        </div>
-        <div class="tw-inline-flex tw-items-center tw-gap-2">
-          <ng-container *ngTemplateOutlet="endSlot"></ng-container>
-        </div>
+      <div class="tw-inline-flex tw-min-w-0 tw-items-center tw-gap-2">
+        <ng-container *ngTemplateOutlet="backButtonSlot"></ng-container>
+        <bit-svg
+          class="tw-block tw-size-4 tw-shrink-0 [&_path]:tw-fill-fg-nav"
+          [content]="logo"
+          [ariaLabel]="'appLogoLabel' | i18n"
+        ></bit-svg>
+        <h1 class="tw-mb-0 tw-truncate tw-text-sm tw-font-semibold">{{ pageTitle() }}</h1>
+      </div>
+      <div class="tw-inline-flex tw-items-center tw-gap-1">
+        <ng-container *ngTemplateOutlet="endSlot"></ng-container>
+        <button
+          bitIconButton="bwi-close"
+          type="button"
+          buttonType="side-nav"
+          size="small"
+          [label]="'close' | i18n"
+          (click)="panelClose.emit()"
+        ></button>
       </div>
     </div>
-  }
+  } @else {
+    @if (vfo1Enabled()) {
+      <div
+        data-testid="app-bar"
+        class="tw-bg-bg-nav tw-text-fg-nav tw-py-2 bit-compact:tw-py-1.5 tw-px-4 bit-compact:tw-px-3"
+      >
+        <div
+          class="tw-max-w-screen-sm tw-mx-auto tw-flex tw-w-full tw-items-center tw-justify-between tw-gap-2"
+        >
+          <div class="tw-inline-flex tw-items-center tw-gap-2">
+            @if (titleBarSuppressed()) {
+              <ng-container *ngTemplateOutlet="backButtonSlot"></ng-container>
+            }
+            <bit-svg
+              class="tw-block tw-w-[120px] [&_path]:tw-fill-fg-nav"
+              [content]="logo"
+              [ariaLabel]="'appLogoLabel' | i18n"
+            ></bit-svg>
+          </div>
+          <div class="tw-inline-flex tw-items-center tw-gap-2">
+            <ng-container *ngTemplateOutlet="endSlot"></ng-container>
+          </div>
+        </div>
+      </div>
+    }
 
-  <div
-    #titleBar
-    data-testid="title-bar"
-    [attr.data-state]="titleBarState()"
-    [class]="titleBarClasses()"
-  >
-    <!-- `tw-min-h-0` lets the grid row shrink past this row's content height as the bar collapses. -->
-    <div class="tw-max-w-screen-sm tw-mx-auto tw-flex tw-justify-between tw-w-full tw-min-h-0">
-      <!--
+    <div
+      #titleBar
+      data-testid="title-bar"
+      [attr.data-state]="titleBarState()"
+      [class]="titleBarClasses()"
+    >
+      <!-- `tw-min-h-0` lets the grid row shrink past this row's content height as the bar collapses. -->
+      <div class="tw-max-w-screen-sm tw-mx-auto tw-flex tw-justify-between tw-w-full tw-min-h-0">
+        <!--
         TODO: remove the `tw-h-9` bindings with the VFO1Foundation flag.
         The one-bar header pins its content rows to a fixed 36px; the title bar sizes to its content.
       -->
-      <div class="tw-inline-flex tw-items-center tw-gap-2" [class.tw-h-9]="!vfo1Enabled()">
-        @if (!titleBarSuppressed()) {
-          <ng-container *ngTemplateOutlet="backButtonSlot"></ng-container>
-        }
-        @if (vfo1Enabled()) {
-          <ng-content select="[slot=title-start]"></ng-content>
-        }
-        @if (pageTitle()) {
-          <div class="tw-inline-flex tw-items-center tw-gap-1">
-            <h1
-              [bitTypography]="vfo1Enabled() ? 'h5' : 'h3'"
-              [class]="vfo1Enabled() ? '!tw-mb-0' : '!tw-mb-0.5'"
-            >
-              {{ pageTitle() }}
-            </h1>
-            <ng-content select="[slot=title-suffix]"></ng-content>
-          </div>
-        }
-        <!--
+        <div class="tw-inline-flex tw-items-center tw-gap-2" [class.tw-h-9]="!vfo1Enabled()">
+          @if (!titleBarSuppressed()) {
+            <ng-container *ngTemplateOutlet="backButtonSlot"></ng-container>
+          }
+          @if (vfo1Enabled()) {
+            <ng-content select="[slot=title-start]"></ng-content>
+          }
+          @if (pageTitle()) {
+            <div class="tw-inline-flex tw-items-center tw-gap-1">
+              <h1
+                [bitTypography]="vfo1Enabled() ? 'h5' : 'h3'"
+                [class]="vfo1Enabled() ? '!tw-mb-0' : '!tw-mb-0.5'"
+              >
+                {{ pageTitle() }}
+              </h1>
+              <ng-content select="[slot=title-suffix]"></ng-content>
+            </div>
+          }
+          <!--
           TODO: remove with the VFO1Foundation flag.
           The app bar owns the extension's branding, so the default slot's only consumers — which
           project a Bitwarden logo — would otherwise render it twice.
         -->
-        @if (!vfo1Enabled()) {
-          <ng-content></ng-content>
-        }
-      </div>
-      <div class="tw-inline-flex tw-items-center tw-gap-2" [class.tw-h-9]="!vfo1Enabled()">
-        @if (vfo1Enabled()) {
-          <ng-content select="[slot=title-end]"></ng-content>
-        } @else {
-          <ng-container *ngTemplateOutlet="endSlot"></ng-container>
-        }
+          @if (!vfo1Enabled()) {
+            <ng-content></ng-content>
+          }
+        </div>
+        <div class="tw-inline-flex tw-items-center tw-gap-2" [class.tw-h-9]="!vfo1Enabled()">
+          @if (vfo1Enabled()) {
+            <ng-content select="[slot=title-end]"></ng-content>
+          } @else {
+            <ng-container *ngTemplateOutlet="endSlot"></ng-container>
+          }
+        </div>
       </div>
     </div>
-  </div>
+  }
 </header>
