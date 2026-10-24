@@ -4,7 +4,7 @@ import { html } from "lit";
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { EventSecurity } from "../../../utils/event-security";
-import { border, themes, typography, spacing } from "../constants/styles";
+import { themes, typography } from "../constants/styles";
 
 export type BadgeButtonProps = {
   buttonAction: (e: Event) => void;
@@ -46,33 +46,35 @@ const badgeButtonStyles = ({ disabled, theme }: { disabled: boolean; theme: Them
   ${typography.helperMedium}
 
   user-select: none;
-  border-radius: ${border.radius.full};
-  padding: ${spacing["1"]} ${spacing["2"]};
+  border-radius: 8px;
+  padding: 5px 10px;
   max-height: fit-content;
   overflow: hidden;
   text-align: center;
   text-overflow: ellipsis;
-  font-weight: 500;
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
 
   ${
     disabled
       ? `
-    border: 0.5px solid ${themes[theme].secondary["300"]};
+    border: 1px solid ${themes[theme].surface.border};
     background-color: ${themes[theme].secondary["300"]};
     color: ${themes[theme].text.muted};
   `
       : `
-    border: 0.5px solid ${themes[theme].primary["700"]};
-    background-color: ${themes[theme].primary["100"]};
+    border: 1px solid ${themes[theme].passkey["300"]};
+    background-color: ${themes[theme].passkey["100"]};
     cursor: pointer;
-    color: ${themes[theme].primary["700"]};
+    color: ${themes[theme].passkey["600"]};
 
     :hover {
-      border-color: ${themes[theme].primary["600"]};
-      background-color: ${themes[theme].primary["600"]};
-      color: ${themes[theme].text.contrast};
+      border-color: ${themes[theme].passkey["600"]};
+      background-color: ${themes[theme].passkey["600"]};
+      color: ${theme === "dark" ? themes[theme].text.contrast : themes[theme].text.alt2};
     }
-    :focus {
+    :focus-visible {
       outline: 2px solid ${themes[theme].primary["600"]};
       outline-offset: 2px;
     }

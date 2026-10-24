@@ -39,8 +39,6 @@ import {
   ItemModule,
   StatusLockupComponent,
   SearchModule,
-  SectionComponent,
-  SectionHeaderComponent,
   SvgComponent,
 } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -89,8 +87,6 @@ interface ViewData {
     PopupHeaderComponent,
     PopupPageComponent,
     SearchModule,
-    SectionComponent,
-    SectionHeaderComponent,
     SvgComponent,
   ],
 })
@@ -116,6 +112,21 @@ export class Fido2Component implements OnInit, OnDestroy {
   protected showNewPasskeyButton: boolean = false;
   protected url: string | undefined = undefined;
   protected readonly inPanel = BrowserPopupUtils.inPanel(window);
+
+  /**
+   * Hostname of the page that requested the passkey operation, shown as context in the panel.
+   */
+  protected get siteHostname(): string | undefined {
+    if (!this.url) {
+      return undefined;
+    }
+
+    try {
+      return new URL(this.url).hostname;
+    } catch {
+      return this.url;
+    }
+  }
 
   constructor(
     private router: Router,

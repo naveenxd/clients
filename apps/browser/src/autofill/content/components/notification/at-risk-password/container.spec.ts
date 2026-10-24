@@ -26,9 +26,21 @@ jest.mock("../../constants/styles", () => ({
     light: {
       secondary: { "300": "#e0e0e0" },
       background: { alt: "#ffffff" },
+      shadow: "0, 0, 0",
+      surface: {
+        bezelFrom: "#ffffff",
+        bezelTo: "#e0e7ff",
+        border: "#e2e8f0",
+        coreFrom: "#ffffff",
+        coreTo: "#f8fafc",
+        highlight: "#ffffff",
+      },
+      text: { main: "#0f172a" },
     },
   },
   spacing: { "4": "16px" },
+  elevation: { overlay: jest.fn(() => "") },
+  motion: { spring: "ease-out", enter: "", reducedMotion: "" },
 }));
 
 describe("AtRiskNotification", () => {

@@ -4,7 +4,7 @@ import { html } from "lit";
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { EventSecurity } from "../../../utils/event-security";
-import { spacing, themes, typography } from "../constants/styles";
+import { elevation, motion, spacing, themes, typography } from "../constants/styles";
 import { Key, Refresh } from "../icons";
 
 import { ColorizedPassword, ColorizedPasswordI18n } from "./colorized-password";
@@ -64,8 +64,8 @@ export function InlineMenuPasswordGenerator({
             @click=${onFill}
             @keyup=${(event: KeyboardEvent) => handleActionKeyUp(event, "ArrowRight")}
           >
-            <span class=${keyIconStyles}>
-              ${Key({ theme, color: themes[theme].primary["600"] })}
+            <span class=${keyIconStyles(theme)}>
+              ${Key({ theme, color: "rgba(255, 255, 255)" })}
             </span>
             <div class=${contentStyles}>
               <div class=${headingStyles(theme)}>${headingText}</div>
@@ -120,7 +120,7 @@ function handleActionKeyUp(event: KeyboardEvent, arrowCode: "ArrowLeft" | "Arrow
 
 const containerStyles = css`
   box-sizing: border-box;
-  padding: calc(${spacing["1"]} / 2);
+  padding: 6px;
 `;
 
 const actionsStyles = (theme: Theme) => css`
@@ -128,26 +128,46 @@ const actionsStyles = (theme: Theme) => css`
   display: flex;
   align-items: center;
   width: 100%;
-  padding: ${spacing["2"]} ${spacing["1"]} ${spacing["3"]} ${spacing["2"]};
-  border-radius: ${spacing["1"]};
-  transition: background-color 0.2s ease-in-out;
+  padding: 9px 8px 9px 9px;
+  border: 1px solid ${themes[theme].surface.border};
+  border-radius: 15px;
+  background-color: ${themes[theme].surface.glass};
+  background-image: linear-gradient(135deg, ${themes[theme].primary["100"]} 0%, transparent 70%);
+  box-shadow: inset 0 1px 0 ${themes[theme].surface.highlight};
+  transition:
+    background-color 180ms ${motion.easeOut},
+    border-color 180ms ${motion.easeOut},
+    box-shadow 180ms ${motion.easeOut},
+    transform 180ms ${motion.spring};
 
   :hover {
-    background-color: ${themes[theme].background.alt};
+    background-color: ${themes[theme].surface.cardHover};
+    border-color: ${themes[theme].primary["300"]};
+    box-shadow: ${elevation.card(theme)};
+    transform: translateY(-1px);
   }
 
   :has(:focus-visible):not(.remove-outline) {
     outline: 2px solid ${themes[theme].primary["600"]};
-    outline-offset: 1px;
+    outline-offset: -2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    :hover {
+      transform: none;
+    }
   }
 `;
 
 const fillButtonStyles = css`
   box-sizing: border-box;
   display: flex;
+  flex: 1 1 auto;
   align-items: center;
-  gap: ${spacing["2"]};
-  width: calc(100% - (${spacing["4"]} * 2 + ${spacing["2"]}));
+  gap: 11px;
+  min-width: 0;
   margin: 0;
   padding: 0 ${spacing["1"]} 0 0;
   border: none;
@@ -158,21 +178,25 @@ const fillButtonStyles = css`
   overflow: hidden;
 `;
 
-const KEY_ICON_SIZE = `calc(${spacing["4"]} * 2)`;
-const REFRESH_ICON_SIZE = `calc(${spacing["4"]} + ${spacing["2"]})`;
+const KEY_ICON_SIZE = `34px`;
+const REFRESH_ICON_SIZE = `16px`;
 
-const keyIconStyles = css`
+const keyIconStyles = (theme: Theme) => css`
   display: inline-flex;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
   width: ${KEY_ICON_SIZE};
   height: ${KEY_ICON_SIZE};
-  margin-top: calc(${spacing["1"]} / 2);
+  border-radius: 11px;
+  background-image: ${themes[theme].accentGradient};
+  box-shadow:
+    0 6px 14px -6px rgba(37, 99, 235, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32);
 
   > svg {
-    width: ${KEY_ICON_SIZE};
-    height: ${KEY_ICON_SIZE};
+    width: 17px;
+    height: 17px;
   }
 `;
 
@@ -181,10 +205,14 @@ const contentStyles = css`
 `;
 
 const headingStyles = (theme: Theme) => css`
-  ${typography.body2}
+  ${typography.helperMedium}
 
-  margin-bottom: 1px;
-  color: ${themes[theme].text.main};
+  margin-bottom: 3px;
+  color: ${themes[theme].text.muted};
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
   white-space: nowrap;
 `;
 
@@ -193,15 +221,26 @@ const refreshButtonStyles = (theme: Theme) => css`
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: calc(${spacing["4"]} * 2 + ${spacing["2"]});
-  height: calc(${spacing["4"]} * 2 + ${spacing["2"]});
+  width: 30px;
+  height: 30px;
   margin: 0;
   padding: 0;
-  border: none;
-  border-radius: ${spacing["1"]};
-  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background-color: transparent;
+  color: ${themes[theme].text.muted};
   cursor: pointer;
   line-height: 0;
+  transition:
+    background-color 160ms ${motion.easeOut},
+    border-color 160ms ${motion.easeOut},
+    color 160ms ${motion.easeOut};
+
+  :hover {
+    border-color: ${themes[theme].primary["300"]};
+    background-color: ${themes[theme].primary["100"]};
+    color: ${themes[theme].primary["600"]};
+  }
 
   :focus-visible {
     outline: 2px solid ${themes[theme].primary["600"]};
@@ -211,6 +250,18 @@ const refreshButtonStyles = (theme: Theme) => css`
   > svg {
     width: ${REFRESH_ICON_SIZE};
     height: ${REFRESH_ICON_SIZE};
-    margin-top: calc(${spacing["1"]} / 2);
+    transition: transform 260ms ${motion.spring};
+  }
+
+  :hover > svg {
+    transform: rotate(90deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    :hover > svg {
+      transform: none;
+    }
   }
 `;

@@ -3,7 +3,7 @@ import { html, nothing } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { spacing, themes, typography } from "../constants/styles";
+import { themes, typography } from "../constants/styles";
 
 import { InlineMenuAction, InlineMenuActionProps } from "./action";
 import { InlineMenuContainer } from "./container";
@@ -32,10 +32,12 @@ export function InlineMenuPrompt({ message, dataTestId, ...actionProps }: Inline
 }
 
 const messageStyles = (theme: Theme) => css`
-  ${typography.body1}
+  ${typography.body2}
 
   box-sizing: border-box;
   width: 100%;
-  padding: ${spacing["2"]};
+  padding: 12px 12px 8px;
   color: ${themes[theme].text.main};
+  font-size: 13px;
+  line-height: 18px;
 `;

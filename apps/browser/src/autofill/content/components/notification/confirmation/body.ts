@@ -3,7 +3,7 @@ import { html, nothing } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { spacing, themes } from "../../constants/styles";
+import { spacing } from "../../constants/styles";
 import { Celebrate, Keyhole, Warning } from "../../illustrations";
 
 import { NotificationConfirmationMessage } from "./message";
@@ -42,7 +42,7 @@ export function NotificationConfirmationBody({
   const showConfirmationMessage = confirmationMessage || buttonText || messageDetails;
 
   return html`
-    <div class=${notificationConfirmationBodyStyles({ theme })}>
+    <div class=${notificationConfirmationBodyStyles}>
       <div class=${iconContainerStyles(error)}>${IconComponent({ theme })}</div>
       ${
         showConfirmationMessage
@@ -67,11 +67,11 @@ const iconContainerStyles = (error?: string) => css`
     height: auto;
   }
 `;
-const notificationConfirmationBodyStyles = ({ theme }: { theme: Theme }) => css`
+const notificationConfirmationBodyStyles = css`
   gap: ${spacing[4]};
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  background-color: ${themes[theme].background.alt};
-  padding: 12px;
+  background-color: transparent;
+  padding: 12px 14px;
 `;

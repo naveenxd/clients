@@ -5,7 +5,7 @@ import { Theme } from "@bitwarden/common/platform/enums";
 
 import { EventSecurity } from "../../../utils/event-security";
 import { Option } from "../common-types";
-import { themes, typography, scrollbarStyles, spacing } from "../constants/styles";
+import { elevation, themes, typography, scrollbarStyles, spacing } from "../constants/styles";
 
 import { OptionItem, optionItemTagName } from "./option-item";
 
@@ -83,11 +83,17 @@ const optionsStyles = ({ theme, topOffset }: { theme: Theme; topOffset: number }
   position: absolute;
   /* top offset + line-height of dropdown button + top and bottom padding of button + border-width */
   top: calc(${topOffset}px + 20px + ${spacing["1"]} + ${spacing["1"]} + 1px);
-  border: 1px solid ${themes[theme].secondary["500"]};
-  border-radius: 0.5rem;
+  border: 1px solid ${themes[theme].surface.border};
+  border-radius: 12px;
   background-clip: padding-box;
+  background-image: linear-gradient(
+    165deg,
+    ${themes[theme].surface.shellFrom} 0%,
+    ${themes[theme].surface.shellTo} 100%
+  );
   background-color: ${themes[theme].background.DEFAULT};
-  padding: 0.25rem 0;
+  box-shadow: ${elevation.overlay(theme)};
+  padding: 4px;
   max-width: fit-content;
   overflow-y: hidden;
   color: ${themes[theme].text.main};
@@ -110,11 +116,17 @@ const optionsWrapper = ({ isSafari, theme }: { isSafari: boolean; theme: Theme }
   overflow-y: auto;
 
   > [class*="${optionItemTagName}-"] {
-    padding: ${spacing["1.5"]} ${spacing["3"]};
+    padding: ${spacing["1.5"]} ${spacing["2"]};
+    border-radius: 8px;
     max-width: ${optionsMenuItemMaxWidth}px;
 
     :hover {
-      background-color: ${themes[theme].primary["100"]};
+      background-color: ${themes[theme].surface.hover};
+    }
+
+    :focus-visible {
+      outline: 2px solid ${themes[theme].primary["600"]};
+      outline-offset: -2px;
     }
   }
 

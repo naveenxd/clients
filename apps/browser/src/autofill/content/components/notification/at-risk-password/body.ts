@@ -3,7 +3,7 @@ import { html, nothing } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { spacing, themes } from "../../constants/styles";
+import { spacing } from "../../constants/styles";
 
 import { AtRiskNotificationMessage } from "./message";
 
@@ -20,7 +20,7 @@ export type AtRiskNotificationBodyProps = {
 
 export function AtRiskNotificationBody({ riskMessage, theme }: AtRiskNotificationBodyProps) {
   return html`
-    <div class=${atRiskNotificationBodyStyles({ theme })}>
+    <div class=${atRiskNotificationBodyStyles}>
       ${
         riskMessage
           ? AtRiskNotificationMessage({
@@ -33,11 +33,11 @@ export function AtRiskNotificationBody({ riskMessage, theme }: AtRiskNotificatio
   `;
 }
 
-const atRiskNotificationBodyStyles = ({ theme }: { theme: Theme }) => css`
+const atRiskNotificationBodyStyles = css`
   gap: ${spacing[4]};
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  background-color: ${themes[theme].background.alt};
-  padding: 12px;
+  background-color: transparent;
+  padding: 12px 14px;
 `;

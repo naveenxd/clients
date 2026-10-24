@@ -10,7 +10,7 @@ import {
 } from "../../../notification/abstractions/notification-bar";
 import { NotificationCipherData } from "../cipher/types";
 import { CollectionView, FolderView, I18n, OrgView } from "../common-types";
-import { themes, spacing } from "../constants/styles";
+import { elevation, motion, themes } from "../constants/styles";
 
 import { NotificationBody, componentClassPrefix as notificationBodyClassPrefix } from "./body";
 import { NotificationFooter } from "./footer";
@@ -55,54 +55,86 @@ export function NotificationContainer({
   const showBody = type !== NotificationTypes.Unlock;
 
   return html`
-    <div data-testid="${notificationTestId}" class=${notificationContainerStyles(theme)}>
-      ${NotificationHeader({
-        handleCloseNotification,
-        i18n,
-        message: headerMessage,
-        theme,
-      })}
-      ${
-        showBody
-          ? NotificationBody({
-              handleEditOrUpdateAction,
-              ciphers,
-              notificationType: type,
-              theme,
-              i18n,
-            })
-          : nothing
-      }
-      ${NotificationFooter({
-        handleSaveAction,
-        collections,
-        folders,
-        i18n,
-        isLoading,
-        notificationType: type,
-        organizations,
-        personalVaultIsAllowed,
-        theme,
-      })}
+    <div data-testid="${notificationTestId}" class=${notificationShellStyles(theme)}>
+      <div class=${notificationCoreStyles(theme)}>
+        ${NotificationHeader({
+          handleCloseNotification,
+          i18n,
+          message: headerMessage,
+          theme,
+        })}
+        ${
+          showBody
+            ? NotificationBody({
+                handleEditOrUpdateAction,
+                ciphers,
+                notificationType: type,
+                theme,
+                i18n,
+              })
+            : nothing
+        }
+        ${NotificationFooter({
+          handleSaveAction,
+          collections,
+          folders,
+          i18n,
+          isLoading,
+          notificationType: type,
+          organizations,
+          personalVaultIsAllowed,
+          theme,
+        })}
+      </div>
     </div>
   `;
 }
 
-const notificationContainerStyles = (theme: Theme) => css`
+const notificationShellStyles = (theme: Theme) => css`
   position: absolute;
   right: 20px;
-  border: 1px solid ${themes[theme].secondary["300"]};
-  border-radius: ${spacing["4"]};
-  box-shadow: -2px 4px 6px 0px #0000001a;
-  background-color: ${themes[theme].background.alt};
   width: 400px;
+  padding: 1px;
+  border-radius: 24px;
+  background-image: linear-gradient(
+    155deg,
+    ${themes[theme].surface.bezelFrom} 0%,
+    ${themes[theme].surface.border} 46%,
+    ${themes[theme].surface.bezelTo} 100%
+  );
+  box-shadow: ${elevation.overlay(theme)};
+  animation: notification-enter 260ms ${motion.spring} both;
+
+  @keyframes notification-enter {
+    ${motion.enter}
+  }
+
+  ${motion.reducedMotion}
+`;
+
+const notificationCoreStyles = (theme: Theme) => css`
+  overflow: hidden;
+  border-radius: 23px;
+  background-color: ${themes[theme].background.alt};
+  background-image:
+    radial-gradient(120% 80% at 50% -20%, ${themes[theme].surface.highlight}, transparent 55%),
+    linear-gradient(
+      165deg,
+      ${themes[theme].surface.coreFrom} 0%,
+      ${themes[theme].surface.coreTo} 100%
+    );
+  color: ${themes[theme].text.main};
+  -webkit-font-smoothing: antialiased;
+  backdrop-filter: blur(26px) saturate(185%);
+  -webkit-backdrop-filter: blur(26px) saturate(185%);
+  box-shadow: inset 0 0 0 1px ${themes[theme].surface.highlight};
 
   [class*="${notificationHeaderClassPrefix}-"] {
-    border-radius: ${spacing["4"]} ${spacing["4"]} 0 0;
+    border-radius: 23px 23px 0 0;
   }
 
   [class*="${notificationBodyClassPrefix}-"] {
-    margin: ${spacing["3"]} 0 0 ${spacing["3"]};
-    padding-right: ${spacing["3"]};
+    margin: 0;
+    padding: 6px 10px 0;
   }
 `;

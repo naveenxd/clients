@@ -4,7 +4,7 @@ import { html, nothing } from "lit";
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { InlineMenuCipherData } from "../../../background/abstractions/overlay.background";
-import { spacing, themes, typography } from "../constants/styles";
+import { border, themes, typography } from "../constants/styles";
 import { Passkey } from "../icons";
 
 export type CipherDetailsProps = {
@@ -29,14 +29,14 @@ export function CipherDetails({ cipher, theme }: CipherDetailsProps) {
         ${name}
         ${
           firstLine
-            ? html`<span title=${firstLine} class=${passkeySubtitleStyles(theme)}>
-                ${Passkey({ theme, color: themes[theme].text.muted })} ${firstLine}
+            ? html`<span title=${firstLine} class=${passkeyBadgeStyles(theme)}>
+                ${Passkey({ theme, color: themes[theme].passkey["700"] })} ${firstLine}
               </span>`
             : nothing
         }
         ${
           secondLine
-            ? html`<span title=${secondLine} class=${passkeySubtitleStyles(theme)}
+            ? html`<span title=${secondLine} class=${passkeySecondaryStyles(theme)}
                 >${secondLine}</span
               >`
             : nothing
@@ -72,7 +72,10 @@ const primaryTextStyles = (theme: Theme) => css`
   text-overflow: ellipsis;
   white-space: nowrap;
   color: ${themes[theme].text.main};
-  font-weight: 500;
+  font-size: 13.5px;
+  line-height: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 `;
 
 const secondaryTextStyles = (theme: Theme) => css`
@@ -83,22 +86,48 @@ const secondaryTextStyles = (theme: Theme) => css`
   text-overflow: ellipsis;
   white-space: nowrap;
   color: ${themes[theme].text.muted};
+  font-size: 11.5px;
+  line-height: 16px;
 `;
 
-const passkeySubtitleStyles = (theme: Theme) => css`
+const passkeyBadgeStyles = (theme: Theme) => css`
   ${typography.helperMedium}
 
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: ${spacing["1"]};
+  gap: 4px;
+  max-width: 100%;
+  margin-top: 3px;
+  padding: 1px 8px 1px 5px;
+  border: 1px solid ${themes[theme].passkey["300"]};
+  border-radius: ${border.radius.full};
+  background-color: ${themes[theme].passkey["100"]};
+  color: ${themes[theme].passkey["700"]};
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  > svg {
+    flex-shrink: 0;
+    width: 12px;
+    height: 12px;
+  }
+`;
+
+const passkeySecondaryStyles = (theme: Theme) => css`
+  ${typography.helperMedium}
+
+  display: block;
+  margin-top: 2px;
+  padding-left: 2px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   color: ${themes[theme].text.muted};
-
-  > svg {
-    flex-shrink: 0;
-    width: ${spacing["3"]};
-    height: ${spacing["3"]};
-  }
+  font-size: 11px;
+  line-height: 15px;
 `;

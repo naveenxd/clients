@@ -6,7 +6,7 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { NotificationType } from "../../../notification/abstractions/notification-bar";
 import { NotificationCipherData } from "../cipher/types";
 import { I18n } from "../common-types";
-import { scrollbarStyles, spacing, themes, typography } from "../constants/styles";
+import { scrollbarStyles, themes, typography } from "../constants/styles";
 import { CipherItemRow } from "../rows/cipher-item-row";
 
 export const componentClassPrefix = "notification-body";
@@ -51,11 +51,11 @@ export function NotificationBody({
 const notificationBodyStyles = ({ isSafari, theme }: { isSafari: boolean; theme: Theme }) => css`
   ${typography.body1}
 
-  gap: ${spacing["1.5"]};
+  gap: 4px;
   display: flex;
   flex-flow: column;
-  background-color: ${themes[theme].background.alt};
-  max-height: 123px;
+  background-color: transparent;
+  max-height: 232px;
   overflow-x: hidden;
   overflow-y: auto;
   white-space: nowrap;
@@ -63,7 +63,7 @@ const notificationBodyStyles = ({ isSafari, theme }: { isSafari: boolean; theme:
   font-weight: 400;
 
   :last-child {
-    border-radius: 0 0 ${spacing["4"]} ${spacing["4"]};
+    border-radius: 0 0 24px 24px;
   }
 
   ${isSafari ? scrollbarStyles(theme).safari : scrollbarStyles(theme).default}

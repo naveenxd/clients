@@ -1,7 +1,6 @@
-import { css } from "@emotion/css";
 import { html, nothing } from "lit";
 
-import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
+import { ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import {
   NotificationBarIframeInitData,
@@ -10,11 +9,8 @@ import {
   NotificationTypes,
 } from "../../../../notification/abstractions/notification-bar";
 import { I18n } from "../../common-types";
-import { themes, spacing } from "../../constants/styles";
-import {
-  NotificationHeader,
-  componentClassPrefix as notificationHeaderClassPrefix,
-} from "../header";
+import { NotificationHeader } from "../header";
+import { notificationShellStyles } from "../shell";
 
 import { NotificationConfirmationBody } from "./body";
 import { NotificationConfirmationFooter } from "./footer";
@@ -72,7 +68,7 @@ export function NotificationConfirmationContainer({
   }
 
   return html`
-    <div data-testid="${notificationTestId}" class=${notificationContainerStyles(theme)}>
+    <div data-testid="${notificationTestId}" class=${notificationShellStyles(theme)}>
       ${NotificationHeader({
         handleCloseNotification,
         i18n,
@@ -102,22 +98,6 @@ export function NotificationConfirmationContainer({
     </div>
   `;
 }
-
-const notificationContainerStyles = (theme: Theme) => css`
-  position: absolute;
-  right: 20px;
-  border: 1px solid ${themes[theme].secondary["300"]};
-  border-radius: ${spacing["4"]};
-  box-shadow: -2px 4px 6px 0px #0000001a;
-  background-color: ${themes[theme].background.alt};
-  width: 400px;
-  overflow: hidden;
-
-  [class*="${notificationHeaderClassPrefix}-"] {
-    border-radius: ${spacing["4"]} ${spacing["4"]} 0 0;
-    border-bottom: 0.5px solid ${themes[theme].secondary["300"]};
-  }
-`;
 
 function getConfirmationMessage(i18n: I18n, type?: NotificationType, error?: string) {
   if (error) {

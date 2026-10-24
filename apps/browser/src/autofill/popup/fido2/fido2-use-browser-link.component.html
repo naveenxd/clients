@@ -1,10 +1,13 @@
 @if ((fido2PopoutSessionData$ | async).fallbackSupported) {
-  <div class="tw-flex tw-items-center tw-justify-center tw-p-2">
-    <button type="button" [bitMenuTriggerFor]="deviceMenu">
-      <span bitTypography="body2">
-        {{ "useDeviceOrHardwareKey" | i18n }}
-      </span>
-      <i class="bwi bwi-fw bwi-sm bwi-angle-down" aria-hidden="true"></i>
+  <div class="tw-flex tw-items-center tw-justify-center">
+    <button
+      type="button"
+      class="tw-inline-flex tw-items-center tw-gap-1.5 tw-border-0 tw-bg-transparent tw-px-2 tw-py-1.5 tw-text-xs tw-font-medium tw-text-muted tw-transition-colors hover:tw-text-fg-brand focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-border-focus"
+      [bitMenuTriggerFor]="deviceMenu"
+    >
+      <i class="bwi bwi-key" aria-hidden="true"></i>
+      <span>{{ "useDeviceOrHardwareKey" | i18n }}</span>
+      <i class="bwi bwi-angle-down" aria-hidden="true"></i>
     </button>
     <bit-menu #deviceMenu>
       <button type="button" bitMenuItem (click)="abort(false)">

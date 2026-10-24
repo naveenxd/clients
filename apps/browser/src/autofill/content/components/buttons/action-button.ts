@@ -4,7 +4,7 @@ import { html, TemplateResult } from "lit";
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { EventSecurity } from "../../../utils/event-security";
-import { border, themes, typography, spacing } from "../constants/styles";
+import { border, motion, themes, typography } from "../constants/styles";
 import { Spinner } from "../icons";
 
 export type ActionButtonProps = {
@@ -66,12 +66,20 @@ const actionButtonStyles = ({
   justify-content: center;
   border: 1px solid transparent;
   border-radius: ${border.radius.full};
-  padding: ${spacing["1"]} ${spacing["3"]};
+  padding: 8px 16px;
+  min-height: 38px;
   width: ${fullWidth ? "100%" : "auto"};
   overflow: hidden;
   text-align: center;
   text-overflow: ellipsis;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  transition:
+    filter 160ms ${motion.easeOut},
+    background-color 160ms ${motion.easeOut},
+    box-shadow 160ms ${motion.easeOut},
+    transform 160ms ${motion.spring};
 
   ${
     disabled || isLoading
@@ -80,18 +88,28 @@ const actionButtonStyles = ({
     color: ${themes[theme].text.muted};
   `
       : `
+    background-image: ${themes[theme].accentGradient};
     background-color: ${themes[theme].primary["600"]};
     cursor: pointer;
-    color: ${themes[theme].text.contrast};
+    color: rgba(255, 255, 255);
+    box-shadow:
+      0 8px 20px -8px rgba(37, 99, 235, 0.72),
+      inset 0 1px 0 rgba(255, 255, 255, 0.28);
 
     :hover {
-      border-color: ${themes[theme].primary["700"]};
-      background-color: ${themes[theme].primary["700"]};
-      color: ${themes[theme].text.contrast};
+      filter: brightness(1.06);
+      color: rgba(255, 255, 255);
+      transform: translateY(-1px);
+      box-shadow:
+        0 12px 24px -8px rgba(37, 99, 235, 0.82),
+        inset 0 1px 0 rgba(255, 255, 255, 0.32);
     }
-    :focus {
+    :active {
+      transform: translateY(0) scale(0.985);
+    }
+    :focus-visible {
       outline: 2px solid ${themes[theme].primary["600"]};
-      outline-offset: 1px;
+      outline-offset: 2px;
     }
   `
   }
@@ -100,5 +118,14 @@ const actionButtonStyles = ({
     padding: 2px 0; /* Match line-height of button body2 typography */
     width: auto;
     height: 16px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    :hover,
+    :active {
+      transform: none;
+    }
   }
 `;

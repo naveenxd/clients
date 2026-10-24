@@ -6,7 +6,6 @@ import { Theme } from "@bitwarden/common/platform/enums";
 import { ActionButton } from "../../buttons/action-button";
 import { AdditionalTasksButtonContent } from "../../buttons/additional-tasks/button-content";
 import { I18n } from "../../common-types";
-import { spacing } from "../../constants/styles";
 
 export type AtRiskNotificationFooterProps = {
   i18n: I18n;
@@ -33,9 +32,5 @@ export function AtRiskNotificationFooter({
 
 const atRiskNotificationFooterStyles = css`
   display: flex;
-  padding: ${spacing[2]} ${spacing[4]} ${spacing[4]} ${spacing[4]};
-
-  :last-child {
-    border-radius: 0 0 ${spacing["4"]} ${spacing["4"]};
-  }
+  padding: 10px 14px 14px;
 `;

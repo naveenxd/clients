@@ -7,7 +7,7 @@ import { NotificationType } from "../../../notification/abstractions/notificatio
 import { CipherItem } from "../cipher/cipher-item";
 import { NotificationCipherData } from "../cipher/types";
 import { I18n } from "../common-types";
-import { spacing, themes, typography } from "../constants/styles";
+import { elevation, motion, spacing, themes, typography } from "../constants/styles";
 
 export type CipherItemRowProps = {
   cipher: NotificationCipherData;
@@ -44,19 +44,38 @@ const cipherItemRowStyles = ({ theme }: { theme: Theme }) => css`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-width: 0 0 0.5px 0;
-  border-style: solid;
-  border-radius: ${spacing["2"]};
-  border-color: ${themes[theme].secondary["300"]};
-  background-color: ${themes[theme].background.DEFAULT};
-  padding: ${spacing["2"]} ${spacing["3"]};
+  border: 1px solid ${themes[theme].surface.border};
+  border-radius: 15px;
+  background-color: ${themes[theme].surface.glass};
+  padding: ${spacing["2"]} 10px;
   min-height: min-content;
-  min-height: 36px; /* fallback for Firefox, which doesn't support min-height: min-content on flex items */
-  max-height: 52px;
+  min-height: 54px; /* fallback for Firefox, which doesn't support min-height: min-content on flex items */
+  max-height: 62px;
   overflow-x: hidden;
   white-space: nowrap;
   color: ${themes[theme].text.main};
   font-weight: 400;
+  box-shadow: inset 0 1px 0 ${themes[theme].surface.highlight};
+  transition:
+    background-color 180ms ${motion.easeOut},
+    border-color 180ms ${motion.easeOut},
+    box-shadow 180ms ${motion.easeOut},
+    transform 180ms ${motion.spring};
+
+  :hover {
+    border-color: ${themes[theme].primary["300"]};
+    background-color: ${themes[theme].surface.cardHover};
+    box-shadow: ${elevation.card(theme)};
+    transform: translateY(-1px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    :hover {
+      transform: none;
+    }
+  }
 
   > div {
     :first-child {

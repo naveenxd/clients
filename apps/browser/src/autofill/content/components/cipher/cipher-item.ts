@@ -15,7 +15,7 @@ import { CipherIcon } from "./cipher-icon";
 import { CipherInfo } from "./cipher-info";
 import { NotificationCipherData } from "./types";
 
-const cipherIconWidth = "24px";
+const cipherIconWidth = "32px";
 
 export type CipherItemProps = {
   cipher: NotificationCipherData;

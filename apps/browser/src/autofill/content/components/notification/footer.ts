@@ -8,7 +8,6 @@ import {
   NotificationTypes,
 } from "../../../notification/abstractions/notification-bar";
 import { OrgView, FolderView, I18n, CollectionView } from "../common-types";
-import { spacing } from "../constants/styles";
 
 import { NotificationButtonRow } from "./button-row";
 
@@ -73,10 +72,5 @@ const notificationFooterStyles = ({
   isChangeNotification: boolean;
 }) => css`
   display: flex;
-  padding: ${spacing[2]} ${spacing[4]} ${isChangeNotification ? spacing[1] : spacing[4]}
-    ${spacing[4]};
-
-  :last-child {
-    border-radius: 0 0 ${spacing["4"]} ${spacing["4"]};
-  }
+  padding: 10px 12px ${isChangeNotification ? "8px" : "13px"};
 `;

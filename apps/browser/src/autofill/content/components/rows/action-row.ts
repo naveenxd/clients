@@ -23,18 +23,20 @@ const actionRowStyles = (theme: Theme) => css`
   ${typography.body2}
 
   user-select: none;
-  border-width: 0 0 0.5px 0;
-  border-style: solid;
-  border-radius: ${spacing["2"]};
-  border-color: ${themes[theme].secondary["300"]};
-  background-color: ${themes[theme].background.DEFAULT};
+  border: 1px solid ${themes[theme].surface.border};
+  border-radius: 10px;
+  background-color: ${themes[theme].surface.raised};
   cursor: pointer;
-  padding: ${spacing["2"]} ${spacing["3"]};
+  padding: ${spacing["2"]} 10px;
   width: 100%;
   min-height: 40px;
   text-align: left;
   color: ${themes[theme].primary["600"]};
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease;
 
   > span {
     display: block;
@@ -45,7 +47,13 @@ const actionRowStyles = (theme: Theme) => css`
   }
 
   :hover {
-    background-color: ${themes[theme].primary["100"]};
+    border-color: ${themes[theme].surface.borderStrong};
+    background-color: ${themes[theme].surface.hover};
     color: ${themes[theme].primary["600"]};
+  }
+
+  :focus-visible {
+    outline: 2px solid ${themes[theme].primary["600"]};
+    outline-offset: 1px;
   }
 `;

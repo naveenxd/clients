@@ -11,11 +11,13 @@ export class AutofillInlineMenuListIframe extends AutofillInlineMenuIframeElemen
         height: "0px",
         minWidth: "260px",
         maxHeight: "180px",
-        boxShadow: "rgba(0, 0, 0, 0.1) 2px 4px 6px 0px",
-        borderRadius: "4px",
-        borderWidth: "1px",
+        // The list page draws its own bezel; the iframe only supplies the outer shadow.
+        boxShadow:
+          "0 24px 48px -20px rgba(15, 23, 42, 0.38), 0 8px 18px -12px rgba(15, 23, 42, 0.24)",
+        borderRadius: "24px",
+        borderWidth: "0px",
         borderStyle: "solid",
-        borderColor: "rgb(206, 212, 220)",
+        borderColor: "transparent",
       },
       chrome.i18n.getMessage("bitwardenVault"),
     );

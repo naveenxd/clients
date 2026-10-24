@@ -146,6 +146,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
     this.inlineMenuListContainer = globalThis.document.createElement("div");
     this.inlineMenuListContainer.classList.add("inline-menu-list-container", themeClass);
+    if (this.panelMode) {
+      this.inlineMenuListContainer.classList.add("inline-menu-list-container--panel");
+    }
     if (!showAnimations) {
       this.inlineMenuListContainer.classList.add("no-animations");
     }

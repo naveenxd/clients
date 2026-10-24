@@ -127,10 +127,13 @@ const cipherListStyles = (theme: Theme) => {
 
   return css`
     box-sizing: border-box;
-    max-height: calc(${spacing["4"]} * 11 + ${spacing["1"]});
+    max-height: 272px;
     overflow-x: hidden;
     overflow-y: auto;
-    background-color: ${themes[theme].background.DEFAULT};
+    padding: 6px 6px 10px;
+    background-color: transparent;
+    mask-image: linear-gradient(180deg, #000 calc(100% - 10px), transparent);
+    -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 10px), transparent);
 
     ${scrollbars.default}
     ${scrollbars.safari}
@@ -138,17 +141,27 @@ const cipherListStyles = (theme: Theme) => {
 };
 
 const cipherListHeadingStyles = (theme: Theme) => css`
-  ${typography.body2}
+  ${typography.helperMedium}
 
   position: sticky;
   top: 0;
   z-index: 1;
   box-sizing: border-box;
-  width: 100%;
-  padding: ${spacing["2"]} ${spacing["3"]};
-  font-weight: 500;
-  letter-spacing: 0.025rem;
-  color: ${themes[theme].text.main};
-  background-color: ${themes[theme].background.DEFAULT};
-  border-bottom: 1px solid ${themes[theme].background.DEFAULT};
+  width: calc(100% - 2px);
+  margin: 0 1px 3px;
+  padding: ${spacing["2"]} ${spacing["2"]} ${spacing["1"]};
+  border-radius: 10px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: ${themes[theme].text.muted};
+  background-image: linear-gradient(
+    180deg,
+    ${themes[theme].surface.coreFrom} 0%,
+    ${themes[theme].surface.coreFrom} 62%,
+    transparent 100%
+  );
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 `;

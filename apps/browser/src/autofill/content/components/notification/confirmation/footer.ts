@@ -22,7 +22,7 @@ export function NotificationConfirmationFooter({
   const primaryButtonText = i18n.nextSecurityTaskAction;
 
   return html`
-    <div class=${notificationConfirmationFooterStyles({ theme })}>
+    <div class=${notificationConfirmationFooterStyles}>
       ${ActionButton({
         handleClick: handleButtonClick,
         buttonText: AdditionalTasksButtonContent({ buttonText: primaryButtonText, theme }),
@@ -33,15 +33,10 @@ export function NotificationConfirmationFooter({
   `;
 }
 
-const notificationConfirmationFooterStyles = ({ theme }: { theme: Theme }) => css`
-  background-color: ${themes[theme].background.alt};
-  padding: 0 ${spacing[3]} ${spacing[3]} ${spacing[3]};
+const notificationConfirmationFooterStyles = css`
+  background-color: transparent;
+  padding: 0 14px 14px;
   max-width: min-content;
-
-  :last-child {
-    border-radius: 0 0 ${spacing["4"]} ${spacing["4"]};
-    padding-bottom: ${spacing[4]};
-  }
 `;
 
 function AdditionalTasksButtonContent({ buttonText, theme }: { buttonText: string; theme: Theme }) {

@@ -25,8 +25,10 @@ export type ButtonRowProps = {
 };
 
 export function ButtonRow({ theme, primaryButton, selectButtons }: ButtonRowProps) {
+  const hasSelectButtons = !!selectButtons?.length;
+
   return html`
-    <div class=${buttonRowStyles}>
+    <div class=${buttonRowStyles(hasSelectButtons)}>
       ${ActionButton({
         handleClick: primaryButton.handlePrimaryButtonClick,
         buttonText: primaryButton.text,
@@ -53,7 +55,7 @@ export function ButtonRow({ theme, primaryButton, selectButtons }: ButtonRowProp
   `;
 }
 
-const buttonRowStyles = css`
+const buttonRowStyles = (hasSelectButtons: boolean) => css`
   gap: ${spacing[4]};
   display: flex;
   align-items: center;
@@ -64,8 +66,8 @@ const buttonRowStyles = css`
   padding-top: ${spacing[1]};
 
   > button {
-    max-width: min-content;
-    flex: 1 1 25%;
+    max-width: ${hasSelectButtons ? "min-content" : "none"};
+    flex: ${hasSelectButtons ? "1 1 25%" : "1 1 100%"};
   }
 
   > div {

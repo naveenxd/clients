@@ -23,9 +23,47 @@
       }
     </popup-header>
 
-    <div class="tw-p-2">
+    <div class="fido2-page tw-p-3">
+      <div
+        class="fido2-hero tw-flex tw-items-center tw-gap-3 tw-rounded-2xl tw-border tw-border-solid tw-border-border-base tw-bg-bg-primary tw-p-3.5"
+      >
+        <div
+          class="fido2-hero-icon tw-grid tw-size-11 tw-shrink-0 tw-place-items-center tw-rounded-xl tw-bg-bg-brand-softer tw-text-fg-brand"
+        >
+          <i class="bwi bwi-passkey bwi-lg" aria-hidden="true"></i>
+        </div>
+        <div class="tw-min-w-0 tw-flex-1">
+          <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+            <span class="tw-text-[15px] tw-font-semibold tw-leading-5 tw-text-fg-heading">
+              {{ "typePasskey" | i18n }}
+            </span>
+            @if (siteHostname) {
+              <span
+                class="fido2-site tw-truncate tw-rounded-full tw-border tw-border-solid tw-border-border-base tw-bg-bg-secondary tw-px-2 tw-py-0.5 tw-font-mono tw-text-[10.5px] tw-font-medium tw-text-muted"
+                [title]="siteHostname"
+              >
+                {{ siteHostname }}
+              </span>
+            }
+          </div>
+          @if (
+            data.message.type === BrowserFido2MessageTypes.ConfirmNewCredentialRequest ||
+            data.message.type === BrowserFido2MessageTypes.PickCredentialRequest
+          ) {
+            <p class="tw-mb-0 tw-mt-0.5 tw-text-xs tw-leading-4 tw-text-muted">
+              {{
+                (data.message.type === BrowserFido2MessageTypes.ConfirmNewCredentialRequest
+                  ? "chooseCipherForPasskeySave"
+                  : "chooseCipherForPasskeyAuth"
+                ) | i18n
+              }}
+            </p>
+          }
+        </div>
+      </div>
+
       @if (passkeyAction === PasskeyActions.Register) {
-        <bit-section>
+        <div class="fido2-search">
           <bit-search
             appAutofocus
             autocomplete="off"
@@ -34,77 +72,102 @@
             (ngModelChange)="search()"
             [(ngModel)]="searchText"
           ></bit-search>
-        </bit-section>
+        </div>
       }
 
       @switch (data.message.type) {
         @case (BrowserFido2MessageTypes.ConfirmNewCredentialRequest) {
-          <bit-section>
+          <div>
             @if (displayedCiphers.length > 0) {
-              <bit-section-header>
-                <h2 bitTypography="h6">{{ "chooseCipherForPasskeySave" | i18n }}</h2>
-              </bit-section-header>
-              @for (cipherItem of displayedCiphers; track cipherItem.id) {
-                <app-fido2-cipher-row
-                  [cipher]="cipherItem"
-                  title="{{ 'passkeyItem' | i18n }}"
-                  (onSelected)="handleCipherItemSelect($event)"
-                ></app-fido2-cipher-row>
-              }
-            }
-            @if (!displayedCiphers.length) {
-              <bit-status-lockup>
-                <bit-svg slot="graphic" [content]="noResultsIcon"></bit-svg>
-                <ng-container slot="title">{{
-                  (hasSearched ? "noItemsMatchSearch" : "noMatchingLoginsForSite") | i18n
-                }}</ng-container>
-                <ng-container slot="description">{{
-                  (hasSearched ? "searchSavePasskeyNewLogin" : "clearFiltersOrTryAnother") | i18n
-                }}</ng-container>
-
-                <button
-                  bitButton
-                  buttonType="primary"
-                  slot="button"
-                  type="button"
-                  (click)="hasSearched ? clearSearch() : saveNewLogin()"
-                  [loading]="loading"
+              <div
+                class="fido2-list-header tw-mb-2 tw-flex tw-items-center tw-justify-between tw-px-1"
+              >
+                <h2
+                  class="tw-mb-0 tw-text-[11px] tw-font-semibold tw-uppercase tw-tracking-wider tw-text-muted"
                 >
-                  {{ (hasSearched ? "multiSelectClearAll" : "savePasskeyNewLogin") | i18n }}
-                </button>
-              </bit-status-lockup>
-            }
-          </bit-section>
-        }
-        @case (BrowserFido2MessageTypes.InformExcludedCredentialRequest) {
-          <bit-section>
-            <div class="tw-space-y-4">
-              <p>{{ "passkeyAlreadyExists" | i18n }}</p>
-              <div class="tw-divide-y tw-divide-secondary-300">
+                  {{ "chooseCipherForPasskeySave" | i18n }}
+                </h2>
+                <span class="tw-text-[11px] tw-font-medium tw-text-muted">
+                  {{ "itemCount" | i18n: displayedCiphers.length }}
+                </span>
+              </div>
+              <div class="fido2-list tw-flex tw-flex-col">
                 @for (cipherItem of displayedCiphers; track cipherItem.id) {
                   <app-fido2-cipher-row
+                    class="fido2-row"
                     [cipher]="cipherItem"
                     title="{{ 'passkeyItem' | i18n }}"
                     (onSelected)="handleCipherItemSelect($event)"
                   ></app-fido2-cipher-row>
                 }
               </div>
-            </div>
-          </bit-section>
+            }
+            @if (!displayedCiphers.length) {
+              <bit-status-lockup class="fido2-empty">
+                <bit-svg slot="graphic" [content]="noResultsIcon"></bit-svg>
+                <ng-container slot="title">{{
+                  (hasSearched ? "noItemsMatchSearch" : "noMatchingLoginsForSite") | i18n
+                }}</ng-container>
+                <ng-container slot="description">{{
+                  (hasSearched ? "searchSavePasskeyNewLogin" : "clearFiltersOrTryAnother") | i18n
+                }}</ng-container>
+
+                <button
+                  bitButton
+                  buttonType="primary"
+                  slot="button"
+                  type="button"
+                  (click)="hasSearched ? clearSearch() : saveNewLogin()"
+                  [loading]="loading"
+                >
+                  {{ (hasSearched ? "multiSelectClearAll" : "savePasskeyNewLogin") | i18n }}
+                </button>
+              </bit-status-lockup>
+            }
+          </div>
         }
-        @case (BrowserFido2MessageTypes.PickCredentialRequest) {
-          <bit-section>
-            @if (displayedCiphers.length > 0) {
-              <ng-container slot="title">{{ "chooseCipherForPasskeyAuth" | i18n }}</ng-container>
+        @case (BrowserFido2MessageTypes.InformExcludedCredentialRequest) {
+          <div class="tw-space-y-4">
+            <p class="tw-mb-0 tw-text-sm tw-text-fg-body">{{ "passkeyAlreadyExists" | i18n }}</p>
+            <div class="fido2-list tw-flex tw-flex-col">
               @for (cipherItem of displayedCiphers; track cipherItem.id) {
                 <app-fido2-cipher-row
+                  class="fido2-row"
                   [cipher]="cipherItem"
                   title="{{ 'passkeyItem' | i18n }}"
                   (onSelected)="handleCipherItemSelect($event)"
                 ></app-fido2-cipher-row>
               }
+            </div>
+          </div>
+        }
+        @case (BrowserFido2MessageTypes.PickCredentialRequest) {
+          <div>
+            @if (displayedCiphers.length > 0) {
+              <div
+                class="fido2-list-header tw-mb-2 tw-flex tw-items-center tw-justify-between tw-px-1"
+              >
+                <h2
+                  class="tw-mb-0 tw-text-[11px] tw-font-semibold tw-uppercase tw-tracking-wider tw-text-muted"
+                >
+                  {{ "chooseCipherForPasskeyAuth" | i18n }}
+                </h2>
+                <span class="tw-text-[11px] tw-font-medium tw-text-muted">
+                  {{ "itemCount" | i18n: displayedCiphers.length }}
+                </span>
+              </div>
+              <div class="fido2-list tw-flex tw-flex-col">
+                @for (cipherItem of displayedCiphers; track cipherItem.id) {
+                  <app-fido2-cipher-row
+                    class="fido2-row"
+                    [cipher]="cipherItem"
+                    title="{{ 'passkeyItem' | i18n }}"
+                    (onSelected)="handleCipherItemSelect($event)"
+                  ></app-fido2-cipher-row>
+                }
+              </div>
             } @else {
-              <bit-status-lockup>
+              <bit-status-lockup class="fido2-empty">
                 <bit-svg slot="graphic" [content]="noResultsIcon"></bit-svg>
                 <ng-container slot="title">{{
                   (hasSearched ? "noItemsMatchSearch" : "noMatchingLoginsForSite") | i18n
@@ -124,13 +187,13 @@
                 </button>
               </bit-status-lockup>
             }
-          </bit-section>
+          </div>
         }
         @case (BrowserFido2MessageTypes.InformCredentialNotFoundRequest) {
-          <bit-section>
-            <div class="tw-space-y-4">
-              <p>{{ "noPasskeysFoundForThisApplication" | i18n }}</p>
-            </div>
+          <div class="tw-space-y-4">
+            <p class="tw-mb-0 tw-text-sm tw-text-fg-body">
+              {{ "noPasskeysFoundForThisApplication" | i18n }}
+            </p>
             <button
               bitButton
               block
@@ -141,10 +204,15 @@
             >
               {{ "close" | i18n }}
             </button>
-          </bit-section>
+          </div>
         }
       }
-      <app-fido2-use-browser-link></app-fido2-use-browser-link>
+
+      <div
+        class="fido2-fallback tw-border-0 tw-border-t tw-border-solid tw-border-border-base tw-pt-2"
+      >
+        <app-fido2-use-browser-link></app-fido2-use-browser-link>
+      </div>
     </div>
   </popup-page>
 }

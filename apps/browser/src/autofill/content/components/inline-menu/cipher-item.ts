@@ -6,7 +6,7 @@ import { Theme } from "@bitwarden/common/platform/enums";
 import { InlineMenuCipherData } from "../../../background/abstractions/overlay.background";
 import { EventSecurity } from "../../../utils/event-security";
 import { CipherIcon } from "../cipher/cipher-icon";
-import { spacing, themes } from "../constants/styles";
+import { elevation, motion, spacing, themes } from "../constants/styles";
 import { ExternalLink } from "../icons";
 
 import { CipherDetails } from "./cipher-details";
@@ -57,6 +57,7 @@ export function InlineMenuCipherItem({
   onListEdgeReached,
 }: InlineMenuCipherItemProps) {
   const isTotp = !!(cipher.login?.totpField && cipher.login?.totp);
+  const isPasskey = !!cipher.login?.passkey;
   const period = cipher.login?.totpCodeTimeInterval ?? 30;
   const fillPrefix = cipher.login?.passkey ? logInWithPasskeyAriaLabel : fillCredentialsForText;
   const fillLabel = `${fillPrefix} ${cipher.name}`;
@@ -103,10 +104,11 @@ export function InlineMenuCipherItem({
                   onPeriodElapsed: onTotpPeriodElapsed,
                 })
               : CipherIcon({
-                  color: themes[theme].primary["600"],
-                  size: `calc(${spacing["4"]} + ${spacing["2"]})`,
+                  color: isPasskey ? themes[theme].passkey["600"] : themes[theme].primary["600"],
+                  size: `36px`,
                   theme,
                   uri,
+                  variant: isPasskey ? "passkey" : "brand",
                 })
           }
           ${
@@ -259,13 +261,35 @@ function getFillAriaDescription(
 const cipherItemStyles = ({ bordered, theme }: { bordered: boolean; theme: Theme }) => css`
   box-sizing: border-box;
   width: 100%;
-  padding: calc(${spacing["1"]} / 2);
+  margin-bottom: ${bordered ? "3px" : "0"};
+  border: 1px solid ${themes[theme].surface.border};
+  border-radius: 15px;
   list-style: none;
-  transition: background-color 0.2s ease-in-out;
-  ${bordered ? `border-bottom: 1px solid ${themes[theme].secondary["300"]};` : ""}
+  background-color: ${themes[theme].surface.card};
+  box-shadow: inset 0 1px 0 ${themes[theme].surface.highlight};
+  transition:
+    background-color 180ms ${motion.easeOut},
+    border-color 180ms ${motion.easeOut},
+    box-shadow 180ms ${motion.easeOut},
+    transform 180ms ${motion.spring};
 
   :hover {
-    background-color: ${themes[theme].background.alt};
+    border-color: ${themes[theme].primary["300"]};
+    background-color: ${themes[theme].surface.cardHover};
+    box-shadow: ${elevation.card(theme)};
+    transform: translateY(-1px);
+  }
+
+  :active {
+    transform: translateY(0) scale(0.995);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    :hover {
+      transform: none;
+    }
   }
 `;
 
@@ -273,22 +297,25 @@ const cipherItemContentStyles = (theme: Theme) => css`
   box-sizing: border-box;
   display: flex;
   align-items: center;
+  gap: ${spacing["1.5"]};
   width: 100%;
-  padding: ${spacing["2"]} ${spacing["1"]} ${spacing["2"]} ${spacing["2"]};
-  border-radius: ${spacing["1"]};
+  min-height: 54px;
+  padding: 6px 6px 6px 7px;
+  border-radius: 15px;
 
   :has(:focus-visible):not(.remove-outline) {
     outline: 2px solid ${themes[theme].primary["600"]};
-    outline-offset: 1px;
+    outline-offset: -2px;
   }
 `;
 
 const fillCipherButtonStyles = css`
   box-sizing: border-box;
   display: flex;
+  flex: 1 1 auto;
   align-items: center;
-  gap: ${spacing["2"]};
-  width: calc(100% - (${spacing["4"]} * 2 + ${spacing["2"]}));
+  gap: 11px;
+  min-width: 0;
   margin: 0;
   padding: 0;
   border: none;
@@ -310,17 +337,31 @@ const viewCipherButtonStyles = (theme: Theme) => css`
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: calc(${spacing["4"]} * 2 + ${spacing["2"]});
-  height: calc(${spacing["4"]} * 2 + ${spacing["2"]});
+  width: 30px;
+  height: 30px;
   margin: 0;
   padding: 0;
   border: none;
-  border-radius: ${spacing["1"]};
+  border-radius: 10px;
   background: transparent;
+  color: ${themes[theme].text.muted};
   cursor: pointer;
   line-height: 0;
+  opacity: 0.5;
+  transition:
+    background-color 160ms ${motion.easeOut},
+    color 160ms ${motion.easeOut},
+    opacity 160ms ${motion.easeOut},
+    transform 160ms ${motion.spring};
 
-  :focus {
+  :hover {
+    background-color: ${themes[theme].primary["100"]};
+    color: ${themes[theme].primary["600"]};
+    opacity: 1;
+    transform: scale(1.06);
+  }
+
+  :focus-visible {
     outline: 2px solid ${themes[theme].primary["600"]};
     outline-offset: 1px;
   }
@@ -328,5 +369,13 @@ const viewCipherButtonStyles = (theme: Theme) => css`
   > svg {
     width: ${spacing["4"]};
     height: ${spacing["4"]};
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    :hover {
+      transform: none;
+    }
   }
 `;

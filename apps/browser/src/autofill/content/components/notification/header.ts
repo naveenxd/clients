@@ -5,7 +5,7 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { CloseButton } from "../buttons/close-button";
 import { I18n } from "../common-types";
-import { spacing, themes } from "../constants/styles";
+import { themes } from "../constants/styles";
 import { BrandIconContainer } from "../icons/brand-icon-container";
 
 import { NotificationHeaderMessage } from "./header-message";
@@ -50,19 +50,19 @@ const notificationHeaderStyles = ({
   standalone: boolean;
   theme: Theme;
 }) => css`
-  gap: ${spacing[2]};
+  gap: 11px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  background-color: ${themes[theme].background.DEFAULT};
-  padding: 12px 16px 8px 16px;
+  background-color: transparent;
+  padding: 14px 14px 11px;
   white-space: nowrap;
 
   ${
     standalone
       ? css``
       : css`
-          border-bottom: 0.5px solid ${themes[theme].secondary["300"]};
+          border-bottom: 1px solid ${themes[theme].surface.border};
         `
   }
 `;
