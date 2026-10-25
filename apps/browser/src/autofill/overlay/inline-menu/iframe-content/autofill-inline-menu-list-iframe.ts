@@ -13,8 +13,8 @@ export class AutofillInlineMenuListIframe extends AutofillInlineMenuIframeElemen
         maxHeight: "180px",
         // The list page draws its own bezel; the iframe only supplies the outer shadow.
         boxShadow:
-          "0 24px 48px -20px rgba(15, 23, 42, 0.38), 0 8px 18px -12px rgba(15, 23, 42, 0.24)",
-        borderRadius: "24px",
+          "0 14px 32px -6px rgba(15, 23, 42, 0.22), 0 4px 10px -2px rgba(15, 23, 42, 0.08)",
+        borderRadius: "14px",
         borderWidth: "0px",
         borderStyle: "solid",
         borderColor: "transparent",

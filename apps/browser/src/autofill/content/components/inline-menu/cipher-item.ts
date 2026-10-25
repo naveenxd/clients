@@ -263,25 +263,22 @@ const cipherItemStyles = ({ bordered, theme }: { bordered: boolean; theme: Theme
   width: 100%;
   margin-bottom: ${bordered ? "3px" : "0"};
   border: 1px solid ${themes[theme].surface.border};
-  border-radius: 15px;
+  border-radius: 10px;
   list-style: none;
   background-color: ${themes[theme].surface.card};
-  box-shadow: inset 0 1px 0 ${themes[theme].surface.highlight};
   transition:
-    background-color 180ms ${motion.easeOut},
-    border-color 180ms ${motion.easeOut},
-    box-shadow 180ms ${motion.easeOut},
-    transform 180ms ${motion.spring};
+    background-color 140ms ${motion.easeOut},
+    border-color 140ms ${motion.easeOut},
+    box-shadow 140ms ${motion.easeOut};
 
   :hover {
     border-color: ${themes[theme].primary["300"]};
     background-color: ${themes[theme].surface.cardHover};
     box-shadow: ${elevation.card(theme)};
-    transform: translateY(-1px);
   }
 
   :active {
-    transform: translateY(0) scale(0.995);
+    transform: scale(0.995);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -299,9 +296,9 @@ const cipherItemContentStyles = (theme: Theme) => css`
   align-items: center;
   gap: ${spacing["1.5"]};
   width: 100%;
-  min-height: 54px;
-  padding: 6px 6px 6px 7px;
-  border-radius: 15px;
+  min-height: 48px;
+  padding: 6px 8px;
+  border-radius: 10px;
 
   :has(:focus-visible):not(.remove-outline) {
     outline: 2px solid ${themes[theme].primary["600"]};

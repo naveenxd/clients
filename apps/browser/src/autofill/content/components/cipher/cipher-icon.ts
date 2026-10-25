@@ -65,26 +65,12 @@ const cipherIconStyle = ({
       border-color: ${themes[theme].surface.border};
       background-color: rgba(255, 255, 255, 0.92);
       background-image: none;
-      box-shadow:
-        0 1px 2px rgba(${themes[theme].shadow}, 0.12),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+      box-shadow: 0 1px 2px rgba(${themes[theme].shadow}, 0.08);
     }
 
     > svg {
       width: 100%;
       height: 100%;
-    }
-
-    [data-cipher-item]:hover & {
-      transform: scale(1.05) rotate(-1.5deg);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      transition: none;
-
-      [data-cipher-item]:hover & {
-        transform: none;
-      }
     }
   `;
 };

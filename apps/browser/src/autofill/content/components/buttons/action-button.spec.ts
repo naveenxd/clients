@@ -13,8 +13,10 @@ jest.mock("@emotion/css", () => ({ css: jest.fn(() => "") }));
 jest.mock("../icons", () => ({ Spinner: jest.fn() }));
 jest.mock("../constants/styles", () => ({
   border: { radius: { full: "9999px" } },
+  motion: { easeOut: "ease-out", spring: "ease", enter: "", reducedMotion: "" },
   themes: {
     light: {
+      accentGradient: "",
       primary: { 600: "", 700: "" },
       secondary: { 300: "" },
       text: { muted: "", contrast: "" },

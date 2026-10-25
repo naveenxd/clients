@@ -628,7 +628,7 @@ body * {
   padding: 0.6rem 0.8rem 0.6rem 1.2rem;
   border-width: 0.1rem 0.1rem 0;
   border-style: solid;
-  border-radius: 2.4rem 2.4rem 0 0;
+  border-radius: 1.4rem 1.4rem 0 0;
 
   @include themify($themes) {
     color: themed("textColor");
@@ -675,15 +675,18 @@ body * {
   padding: 0;
   margin: 0;
   border: none;
-  border-radius: 0.7rem;
+  border-radius: 0.6rem;
   background: transparent;
-  font-family: $font-family-sans-serif;
-  font-size: 2rem;
-  line-height: 1;
   cursor: pointer;
   transition:
     background-color 0.14s ease,
     color 0.14s ease;
+
+  svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    flex-shrink: 0;
+  }
 
   @include themify($themes) {
     color: themed("mutedTextColor");
@@ -711,8 +714,10 @@ body * {
   overflow: hidden;
   border-width: 0 0.1rem 0.1rem;
   border-style: solid;
-  border-radius: 0 0 2.4rem 2.4rem;
-  box-shadow: 0 1.8rem 3.8rem -1.4rem rgb(0 0 0 / 0.45);
+  border-radius: 0 0 1.4rem 1.4rem;
+  box-shadow:
+    0 1.4rem 3.2rem -0.6rem rgba(15, 23, 42, 0.22),
+    0 0.4rem 1rem -0.2rem rgba(15, 23, 42, 0.08);
 
   @include themify($themes) {
     background-color: themed("backgroundColor");

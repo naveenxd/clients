@@ -4,7 +4,7 @@ import { html, TemplateResult } from "lit";
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { EventSecurity } from "../../../utils/event-security";
-import { border, motion, themes, typography } from "../constants/styles";
+import { motion, themes, typography } from "../constants/styles";
 import { Spinner } from "../icons";
 
 export type ActionButtonProps = {
@@ -65,9 +65,9 @@ const actionButtonStyles = ({
   align-items: center;
   justify-content: center;
   border: 1px solid transparent;
-  border-radius: ${border.radius.full};
+  border-radius: 8px;
   padding: 8px 16px;
-  min-height: 38px;
+  min-height: 36px;
   width: ${fullWidth ? "100%" : "auto"};
   overflow: hidden;
   text-align: center;
@@ -76,10 +76,9 @@ const actionButtonStyles = ({
   font-weight: 600;
   letter-spacing: -0.005em;
   transition:
-    filter 160ms ${motion.easeOut},
-    background-color 160ms ${motion.easeOut},
-    box-shadow 160ms ${motion.easeOut},
-    transform 160ms ${motion.spring};
+    background-color 140ms ${motion.easeOut},
+    box-shadow 140ms ${motion.easeOut},
+    transform 140ms ${motion.easeOut};
 
   ${
     disabled || isLoading
@@ -88,24 +87,17 @@ const actionButtonStyles = ({
     color: ${themes[theme].text.muted};
   `
       : `
-    background-image: ${themes[theme].accentGradient};
     background-color: ${themes[theme].primary["600"]};
     cursor: pointer;
     color: rgba(255, 255, 255);
-    box-shadow:
-      0 8px 20px -8px rgba(37, 99, 235, 0.72),
-      inset 0 1px 0 rgba(255, 255, 255, 0.28);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), 0 2px 4px -1px rgba(23, 93, 220, 0.25);
 
     :hover {
-      filter: brightness(1.06);
-      color: rgba(255, 255, 255);
-      transform: translateY(-1px);
-      box-shadow:
-        0 12px 24px -8px rgba(37, 99, 235, 0.82),
-        inset 0 1px 0 rgba(255, 255, 255, 0.32);
+      background-color: ${themes[theme].primary["700"]};
+      box-shadow: 0 2px 4px rgba(15, 23, 42, 0.1), 0 4px 8px -1px rgba(23, 93, 220, 0.35);
     }
     :active {
-      transform: translateY(0) scale(0.985);
+      transform: scale(0.985);
     }
     :focus-visible {
       outline: 2px solid ${themes[theme].primary["600"]};

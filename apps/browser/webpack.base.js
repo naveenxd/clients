@@ -204,6 +204,7 @@ module.exports.buildConfig = function buildConfig(params) {
               : path.resolve(__dirname, "src/manifest.json"),
           to: "manifest.json",
           transform: manifest.transform(browser),
+          force: true,
         },
         { from: path.resolve(__dirname, "src/managed_schema.json"), to: "managed_schema.json" },
         { from: path.resolve(__dirname, "src/_locales"), to: "_locales" },

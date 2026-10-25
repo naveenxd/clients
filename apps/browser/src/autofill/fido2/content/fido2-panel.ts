@@ -63,10 +63,9 @@ export function setupFido2Panel(globalContext: Window) {
         boxSizing: "border-box",
         margin: "0",
         padding: "0",
-        border: "1px solid rgba(15, 23, 42, 0.14)",
-        borderRadius: "24px",
-        boxShadow:
-          "0 24px 48px -20px rgba(15, 23, 42, 0.4), 0 8px 18px -12px rgba(15, 23, 42, 0.24)",
+        border: "1px solid rgba(15, 23, 42, 0.12)",
+        borderRadius: "16px",
+        boxShadow: "0 16px 36px -6px rgba(15, 23, 42, 0.25), 0 4px 12px -2px rgba(15, 23, 42, 0.1)",
         overflow: "hidden",
         background: "transparent",
         colorScheme: "normal",

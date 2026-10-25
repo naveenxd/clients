@@ -65,7 +65,7 @@ export function InlineMenuPasswordGenerator({
             @keyup=${(event: KeyboardEvent) => handleActionKeyUp(event, "ArrowRight")}
           >
             <span class=${keyIconStyles(theme)}>
-              ${Key({ theme, color: "rgba(255, 255, 255)" })}
+              ${Key({ theme, color: themes[theme].primary["600"] })}
             </span>
             <div class=${contentStyles}>
               <div class=${headingStyles(theme)}>${headingText}</div>
@@ -128,23 +128,19 @@ const actionsStyles = (theme: Theme) => css`
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 9px 8px 9px 9px;
+  padding: 8px;
   border: 1px solid ${themes[theme].surface.border};
-  border-radius: 15px;
-  background-color: ${themes[theme].surface.glass};
-  background-image: linear-gradient(135deg, ${themes[theme].primary["100"]} 0%, transparent 70%);
-  box-shadow: inset 0 1px 0 ${themes[theme].surface.highlight};
+  border-radius: 10px;
+  background-color: ${themes[theme].surface.card};
   transition:
-    background-color 180ms ${motion.easeOut},
-    border-color 180ms ${motion.easeOut},
-    box-shadow 180ms ${motion.easeOut},
-    transform 180ms ${motion.spring};
+    background-color 140ms ${motion.easeOut},
+    border-color 140ms ${motion.easeOut},
+    box-shadow 140ms ${motion.easeOut};
 
   :hover {
     background-color: ${themes[theme].surface.cardHover};
     border-color: ${themes[theme].primary["300"]};
     box-shadow: ${elevation.card(theme)};
-    transform: translateY(-1px);
   }
 
   :has(:focus-visible):not(.remove-outline) {
@@ -154,10 +150,6 @@ const actionsStyles = (theme: Theme) => css`
 
   @media (prefers-reduced-motion: reduce) {
     transition: none;
-
-    :hover {
-      transform: none;
-    }
   }
 `;
 
@@ -166,7 +158,7 @@ const fillButtonStyles = css`
   display: flex;
   flex: 1 1 auto;
   align-items: center;
-  gap: 11px;
+  gap: 10px;
   min-width: 0;
   margin: 0;
   padding: 0 ${spacing["1"]} 0 0;
@@ -178,7 +170,7 @@ const fillButtonStyles = css`
   overflow: hidden;
 `;
 
-const KEY_ICON_SIZE = `34px`;
+const KEY_ICON_SIZE = `30px`;
 const REFRESH_ICON_SIZE = `16px`;
 
 const keyIconStyles = (theme: Theme) => css`
@@ -188,15 +180,12 @@ const keyIconStyles = (theme: Theme) => css`
   justify-content: center;
   width: ${KEY_ICON_SIZE};
   height: ${KEY_ICON_SIZE};
-  border-radius: 11px;
-  background-image: ${themes[theme].accentGradient};
-  box-shadow:
-    0 6px 14px -6px rgba(37, 99, 235, 0.65),
-    inset 0 1px 0 rgba(255, 255, 255, 0.32);
+  border-radius: 7px;
+  background-color: ${themes[theme].primary["100"]};
 
   > svg {
-    width: 17px;
-    height: 17px;
+    width: 16px;
+    height: 16px;
   }
 `;
 

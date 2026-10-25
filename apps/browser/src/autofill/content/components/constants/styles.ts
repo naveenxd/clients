@@ -8,8 +8,8 @@ const lightTheme = {
   },
   shadow: `15, 23, 42`,
   primary: {
-    100: `rgba(23, 93, 220 / 0.08)`,
-    300: `rgba(23, 93, 220 / 0.28)`,
+    100: `rgba(23, 93, 220, 0.08)`,
+    300: `rgba(23, 93, 220, 0.28)`,
     600: `rgba(23, 93, 220)`,
     700: `rgba(21, 75, 178)`,
   },
@@ -64,17 +64,17 @@ const lightTheme = {
     raised: `rgba(255, 255, 255)`,
     sunken: `rgba(241, 245, 249)`,
     border: `rgba(15, 23, 42, 0.08)`,
-    borderStrong: `rgba(15, 23, 42, 0.16)`,
+    borderStrong: `rgba(15, 23, 42, 0.14)`,
     highlight: `rgba(255, 255, 255, 0.9)`,
-    hover: `rgba(15, 23, 42, 0.045)`,
-    bezelFrom: `rgba(255, 255, 255, 0.98)`,
-    bezelTo: `rgba(23, 93, 220, 0.22)`,
-    coreFrom: `rgba(255, 255, 255, 0.97)`,
-    coreTo: `rgba(243, 247, 255, 0.94)`,
-    glass: `rgba(255, 255, 255, 0.58)`,
-    glassStrong: `rgba(255, 255, 255, 0.86)`,
-    card: `rgba(255, 255, 255, 0.66)`,
-    cardHover: `rgba(255, 255, 255, 0.95)`,
+    hover: `rgba(15, 23, 42, 0.04)`,
+    bezelFrom: `rgba(15, 23, 42, 0.08)`,
+    bezelTo: `rgba(15, 23, 42, 0.08)`,
+    coreFrom: `rgba(255, 255, 255)`,
+    coreTo: `rgba(255, 255, 255)`,
+    glass: `rgba(255, 255, 255, 0.85)`,
+    glassStrong: `rgba(255, 255, 255, 0.95)`,
+    card: `rgba(255, 255, 255, 0.95)`,
+    cardHover: `rgba(255, 255, 255, 1)`,
   },
   accentGradient: `linear-gradient(135deg, #1a41ac 0%, #175ddc 52%, #2563eb 100%)`,
   passkeyGradient: `linear-gradient(135deg, #6d4aff 0%, #4f46e5 55%, #4338ca 100%)`,
@@ -95,14 +95,14 @@ const darkTheme = {
   },
   shadow: `0, 0, 0`,
   primary: {
-    100: `rgba(59, 130, 246 / 0.14)`,
-    300: `rgba(59, 130, 246 / 0.32)`,
+    100: `rgba(59, 130, 246, 0.14)`,
+    300: `rgba(59, 130, 246, 0.32)`,
     600: `rgba(96, 165, 250)`,
     700: `rgba(147, 197, 253)`,
   },
   secondary: {
-    100: `rgba(255, 255, 255 / 0.06)`,
-    300: `rgba(255, 255, 255 / 0.11)`,
+    100: `rgba(255, 255, 255, 0.06)`,
+    300: `rgba(255, 255, 255, 0.11)`,
     500: `rgba(100, 116, 139)`,
     600: `rgba(148, 163, 184)`,
     700: `rgba(203, 213, 225)`,
@@ -146,22 +146,22 @@ const darkTheme = {
     alt4: `rgba(9, 13, 22)`,
   },
   surface: {
-    shellFrom: `rgba(20, 27, 41, 0.96)`,
-    shellTo: `rgba(11, 16, 26, 0.96)`,
-    raised: `rgba(255, 255, 255, 0.045)`,
-    sunken: `rgba(255, 255, 255, 0.025)`,
-    border: `rgba(255, 255, 255, 0.09)`,
-    borderStrong: `rgba(255, 255, 255, 0.18)`,
-    highlight: `rgba(255, 255, 255, 0.07)`,
-    hover: `rgba(255, 255, 255, 0.07)`,
-    bezelFrom: `rgba(255, 255, 255, 0.24)`,
-    bezelTo: `rgba(129, 140, 248, 0.18)`,
-    coreFrom: `rgba(23, 31, 47, 0.97)`,
-    coreTo: `rgba(11, 16, 27, 0.96)`,
-    glass: `rgba(255, 255, 255, 0.045)`,
-    glassStrong: `rgba(255, 255, 255, 0.085)`,
-    card: `rgba(255, 255, 255, 0.04)`,
-    cardHover: `rgba(255, 255, 255, 0.085)`,
+    shellFrom: `rgba(21, 30, 46, 0.98)`,
+    shellTo: `rgba(11, 16, 26, 0.98)`,
+    raised: `rgba(21, 30, 46)`,
+    sunken: `rgba(11, 16, 26)`,
+    border: `rgba(255, 255, 255, 0.08)`,
+    borderStrong: `rgba(255, 255, 255, 0.15)`,
+    highlight: `rgba(255, 255, 255, 0.05)`,
+    hover: `rgba(255, 255, 255, 0.06)`,
+    bezelFrom: `rgba(255, 255, 255, 0.08)`,
+    bezelTo: `rgba(255, 255, 255, 0.08)`,
+    coreFrom: `rgba(21, 30, 46)`,
+    coreTo: `rgba(21, 30, 46)`,
+    glass: `rgba(21, 30, 46, 0.85)`,
+    glassStrong: `rgba(21, 30, 46, 0.95)`,
+    card: `rgba(21, 30, 46, 0.95)`,
+    cardHover: `rgba(26, 38, 56, 1)`,
   },
   accentGradient: `linear-gradient(135deg, #2563eb 0%, #3b82f6 55%, #60a5fa 100%)`,
   passkeyGradient: `linear-gradient(135deg, #8b5cf6 0%, #7c3aed 55%, #6366f1 100%)`,
@@ -194,20 +194,20 @@ export const spacing = {
 
 export const border = {
   radius: {
-    large: `12px`,
-    xlarge: `18px`,
-    xxl: `24px`,
+    large: `10px`,
+    xlarge: `14px`,
+    xxl: `16px`,
     full: `9999px`,
   },
 };
 
 export const motion = {
-  easeOut: `cubic-bezier(0.23, 1, 0.32, 1)`,
-  spring: `cubic-bezier(0.34, 1.56, 0.64, 1)`,
+  easeOut: `cubic-bezier(0.16, 1, 0.3, 1)`,
+  spring: `cubic-bezier(0.16, 1, 0.3, 1)`,
   enter: `
     0% {
       opacity: 0;
-      transform: translateY(-8px) scale(0.97);
+      transform: translateY(-4px) scale(0.98);
     }
     100% {
       opacity: 1;
@@ -224,16 +224,17 @@ export const motion = {
 
 export const elevation = {
   overlay: (theme: Theme) => `
-    0 32px 64px -24px rgba(${themes[theme].shadow}, ${theme === "dark" ? "0.85" : "0.4"}),
-    0 12px 26px -16px rgba(${themes[theme].shadow}, ${theme === "dark" ? "0.6" : "0.22"}),
+    0 16px 36px -8px rgba(${themes[theme].shadow}, ${theme === "dark" ? "0.6" : "0.18"}),
+    0 4px 12px -2px rgba(${themes[theme].shadow}, ${theme === "dark" ? "0.4" : "0.08"}),
     inset 0 1px 0 ${themes[theme].surface.highlight}
   `,
   raised: (theme: Theme) => `
-    0 1px 2px rgba(${themes[theme].shadow}, ${theme === "dark" ? "0.35" : "0.06"})
+    0 1px 3px rgba(${themes[theme].shadow}, ${theme === "dark" ? "0.3" : "0.05"}),
+    0 1px 2px rgba(${themes[theme].shadow}, ${theme === "dark" ? "0.2" : "0.03"})
   `,
   card: (theme: Theme) => `
-    0 1px 2px rgba(${themes[theme].shadow}, ${theme === "dark" ? "0.3" : "0.05"}),
-    0 10px 22px -16px rgba(${themes[theme].shadow}, ${theme === "dark" ? "0.55" : "0.28"}),
+    0 1px 3px rgba(${themes[theme].shadow}, ${theme === "dark" ? "0.25" : "0.04"}),
+    0 6px 14px -6px rgba(${themes[theme].shadow}, ${theme === "dark" ? "0.45" : "0.12"}),
     inset 0 1px 0 ${themes[theme].surface.highlight}
   `,
 };

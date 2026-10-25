@@ -92,18 +92,14 @@ export function NotificationContainer({
 
 const notificationShellStyles = (theme: Theme) => css`
   position: absolute;
-  right: 20px;
-  width: 400px;
+  right: 16px;
+  top: 16px;
+  width: 380px;
   padding: 1px;
-  border-radius: 24px;
-  background-image: linear-gradient(
-    155deg,
-    ${themes[theme].surface.bezelFrom} 0%,
-    ${themes[theme].surface.border} 46%,
-    ${themes[theme].surface.bezelTo} 100%
-  );
+  border-radius: 14px;
+  background-color: ${themes[theme].surface.borderStrong};
   box-shadow: ${elevation.overlay(theme)};
-  animation: notification-enter 260ms ${motion.spring} both;
+  animation: notification-enter 220ms ${motion.easeOut} both;
 
   @keyframes notification-enter {
     ${motion.enter}
@@ -114,23 +110,13 @@ const notificationShellStyles = (theme: Theme) => css`
 
 const notificationCoreStyles = (theme: Theme) => css`
   overflow: hidden;
-  border-radius: 23px;
-  background-color: ${themes[theme].background.alt};
-  background-image:
-    radial-gradient(120% 80% at 50% -20%, ${themes[theme].surface.highlight}, transparent 55%),
-    linear-gradient(
-      165deg,
-      ${themes[theme].surface.coreFrom} 0%,
-      ${themes[theme].surface.coreTo} 100%
-    );
+  border-radius: 13px;
+  background-color: ${themes[theme].background.DEFAULT};
   color: ${themes[theme].text.main};
   -webkit-font-smoothing: antialiased;
-  backdrop-filter: blur(26px) saturate(185%);
-  -webkit-backdrop-filter: blur(26px) saturate(185%);
-  box-shadow: inset 0 0 0 1px ${themes[theme].surface.highlight};
 
   [class*="${notificationHeaderClassPrefix}-"] {
-    border-radius: 23px 23px 0 0;
+    border-radius: 13px 13px 0 0;
   }
 
   [class*="${notificationBodyClassPrefix}-"] {

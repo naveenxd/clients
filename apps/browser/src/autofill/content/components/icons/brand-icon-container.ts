@@ -20,27 +20,15 @@ const brandIconContainerStyles = (theme: Theme) => css`
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 11px;
-  background-image: ${themes[theme].accentGradient};
-  box-shadow:
-    0 6px 16px -6px rgba(37, 99, 235, 0.7),
-    inset 0 1px 0 rgba(255, 255, 255, 0.34);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: ${themes[theme].primary["600"]};
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.15);
 
   > svg {
     width: 15px;
     height: 17px;
     flex-shrink: 0;
-  }
-
-  ${
-    theme === "dark"
-      ? css`
-          box-shadow:
-            0 6px 18px -6px rgba(59, 130, 246, 0.8),
-            inset 0 1px 0 rgba(255, 255, 255, 0.34);
-        `
-      : css``
   }
 `;
